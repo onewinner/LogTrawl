@@ -1,0 +1,62 @@
+/* Element Plus 全局样式覆盖 */
+
+/* ElMessage 样式优化 - 确保显示在顶部 */
+.el-message {
+  position: fixed !important;
+  top: 20px !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  z-index: 9999 !important;
+  margin: 0 !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+  border-radius: 8px !important;
+  font-size: 14px !important;
+  padding: 12px 16px !important;
+  min-width: 300px !important;
+  max-width: 500px !important;
+  text-align: center !important;
+}
+
+/* ElMessage 使用默认颜色样式 */
+
+/* ElMessage 动画效果 */
+.el-message-fade-enter-active {
+  transition: all 0.3s ease !important;
+}
+
+.el-message-fade-leave-active {
+  transition: all 0.3s ease !important;
+}
+
+.el-message-fade-enter-from {
+  opacity: 0 !important;
+  transform: translateX(-50%) translateY(-20px) !important;
+}
+
+.el-message-fade-leave-to {
+  opacity: 0 !important;
+  transform: translateX(-50%) translateY(-20px) !important;
+}
+
+/* 确保消息容器不被其他元素遮挡 */
+.el-message__group {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  z-index: 9999 !important;
+  pointer-events: none !important;
+}
+
+.el-message__group .el-message {
+  pointer-events: auto !important;
+}
+
+/* 覆盖可能的冲突样式 */
+body .el-message {
+  position: fixed !important;
+  top: 20px !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  z-index: 9999 !important;
+}

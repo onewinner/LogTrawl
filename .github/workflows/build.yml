@@ -1,0 +1,83 @@
+name: Build
+# run-name: Deploy to ${{ inputs.deploy_target }} by @${{ github.actor }}
+
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - "**.md"
+      - "**.spec.js"
+      - ".idea"
+      - ".vscode"
+      - ".dockerignore"
+      - "Dockerfile"
+      - ".gitignore"
+      - ".github/**"
+      - "!.github/workflows/build.yml"
+
+jobs:
+  build-release-files:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [windows-latest, ubuntu-latest, macos-latest]
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Install linux dependencies
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          sudo apt-get update -y && sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.0-dev build-essential pkg-config
+
+      - name: Setup Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.20'
+      
+      - name: Setup Wails CLI v2.6.0
+        run: go install github.com/wailsapp/wails/v2/cmd/wails@v2.6.0
+
+      - name: Checkout Wails
+        run: wails doctor
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18  
+
+      - name: Creating project with a template
+        run: |
+          cd ..
+          wails init -n my-wails-project -t wails-vite-vue-ts-element
+
+      - name: Build Release Files
+        run: |
+          cd ../my-wails-project
+          wails build
+      
+      - name: Copy build files (Windows)
+        if: runner.os == 'Windows'
+        shell: cmd # 在Windows中默认值是pwsh，也就是在运行 run 命令时使用 PowerShell
+        run: |
+          mkdir build\bin
+          copy ..\my-wails-project\build\bin\* build\bin
+
+      - name: Copy build files (Linux)
+        if: runner.os != 'Windows'
+        run: |
+          mkdir -p build/bin
+          cp -r ../my-wails-project/build/bin/* build/bin/
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: build_on_${{ matrix.os }}
+          path: build/bin
+          retention-days: 5
+# If you use `actions/upload-artifact@v3`, you must know:
+# - Relative pathing '.' and '..' is not allowed. See #176
+# - 'working-directory' cannot be set here
+# - A step cannot have both the `uses` and `run` keys
