@@ -8,6 +8,7 @@ type LogFile struct {
 	Name         string    `json:"name"`
 	Path         string    `json:"path"`
 	Size         int64     `json:"size"`
+	Lines        int       `json:"lines,omitempty"`        // 文件行数（可选）
 	LastModified time.Time `json:"lastModified"`
 	IsOpen       bool      `json:"isOpen"`
 }

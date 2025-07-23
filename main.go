@@ -27,8 +27,8 @@ func main() {
 
 	// Create application with options
 	err := wails.Run(&options.App{
-		Title:             "LogTrawl",
-		Width:             1000,
+		Title:             "LogTrawl v1.0.0",
+		Width:             1100,
 		Height:            700,
 		DisableResize:     false,
 		Fullscreen:        false,
@@ -47,14 +47,6 @@ func main() {
 		DragAndDrop:   DragAndDropOptions(),
 		OnDomReady: func(ctx context.Context) {
 			runtime.OnFileDrop(ctx, func(x, y int, paths []string) {
-				if len(paths) > 0 {
-					// 处理文件拖拽
-					err := app.HandleFileDrop(paths[0])
-					if err != nil {
-						// 可以在这里添加日志记录
-						println("文件拖拽处理失败:", err.Error())
-					}
-				}
 			})
 		},
 		OnShutdown:        app.shutdown,

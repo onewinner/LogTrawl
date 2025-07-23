@@ -6,6 +6,22 @@ export function AddRecentFile(arg1) {
   return window['go']['main']['App']['AddRecentFile'](arg1);
 }
 
+export function AnalyzeLogFile(arg1) {
+  return window['go']['main']['App']['AnalyzeLogFile'](arg1);
+}
+
+export function AnalyzeLogFileWithProgress(arg1, arg2) {
+  return window['go']['main']['App']['AnalyzeLogFileWithProgress'](arg1, arg2);
+}
+
+export function AnalyzeSpecificIP(arg1, arg2) {
+  return window['go']['main']['App']['AnalyzeSpecificIP'](arg1, arg2);
+}
+
+export function CancelAnalysis(arg1) {
+  return window['go']['main']['App']['CancelAnalysis'](arg1);
+}
+
 export function ClearRecentFiles() {
   return window['go']['main']['App']['ClearRecentFiles']();
 }
@@ -14,8 +30,20 @@ export function ExportLogLines(arg1, arg2) {
   return window['go']['main']['App']['ExportLogLines'](arg1, arg2);
 }
 
+export function GetCommonDatePatterns() {
+  return window['go']['main']['App']['GetCommonDatePatterns']();
+}
+
+export function GetFileDateRange(arg1) {
+  return window['go']['main']['App']['GetFileDateRange'](arg1);
+}
+
 export function GetFileInfo(arg1) {
   return window['go']['main']['App']['GetFileInfo'](arg1);
+}
+
+export function GetFileLineCount(arg1) {
+  return window['go']['main']['App']['GetFileLineCount'](arg1);
 }
 
 export function GetFilesInDirectory(arg1) {
@@ -34,12 +62,12 @@ export function Greet(arg1) {
   return window['go']['main']['App']['Greet'](arg1);
 }
 
-export function HandleFileDrop(arg1) {
-  return window['go']['main']['App']['HandleFileDrop'](arg1);
-}
-
 export function OpenDirectoryDialog() {
   return window['go']['main']['App']['OpenDirectoryDialog']();
+}
+
+export function OpenDirectoryDialogForSplit() {
+  return window['go']['main']['App']['OpenDirectoryDialogForSplit']();
 }
 
 export function OpenFileDialog() {
@@ -48,6 +76,10 @@ export function OpenFileDialog() {
 
 export function ReadLogFile(arg1) {
   return window['go']['main']['App']['ReadLogFile'](arg1);
+}
+
+export function ReadLogFileChunk(arg1, arg2, arg3) {
+  return window['go']['main']['App']['ReadLogFileChunk'](arg1, arg2, arg3);
 }
 
 export function RemoveRecentFile(arg1) {
@@ -64,4 +96,12 @@ export function SearchInFile(arg1, arg2, arg3) {
 
 export function SearchInFileWithRegex(arg1, arg2, arg3) {
   return window['go']['main']['App']['SearchInFileWithRegex'](arg1, arg2, arg3);
+}
+
+export function SplitFile(arg1) {
+  return window['go']['main']['App']['SplitFile'](arg1);
+}
+
+export function StartAnalysis(arg1) {
+  return window['go']['main']['App']['StartAnalysis'](arg1);
 }

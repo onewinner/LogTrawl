@@ -5,7 +5,6 @@ import (
 
 	"LogTrawl/backend/models"
 	"LogTrawl/backend/services"
-	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
 // App struct
@@ -16,6 +15,8 @@ type App struct {
 	recentFilesService  *services.RecentFilesService
 	dialogService       *services.DialogService
 	systemService       *services.SystemService
+	analysisService     *services.AnalysisService
+	fileSplitterService *services.FileSplitterService
 }
 
 // NewApp creates a new App application struct
@@ -33,6 +34,8 @@ func (a *App) startup(ctx context.Context) {
 	a.recentFilesService = services.NewRecentFilesService()
 	a.dialogService = services.NewDialogService(ctx)
 	a.systemService = services.NewSystemService()
+	a.analysisService = services.NewAnalysisService()
+	a.fileSplitterService = services.NewFileSplitterService()
 }
 
 // domReady is called after front-end resources have been loaded
@@ -77,9 +80,24 @@ func (a *App) GetFileInfo(filePath string) (*models.LogFile, error) {
 	return a.fileService.GetFileInfo(filePath)
 }
 
+// GetFileLineCount returns the number of lines in a file
+func (a *App) GetFileLineCount(filePath string) (int, error) {
+	return a.fileService.GetFileLineCount(filePath)
+}
+
+// GetFileDateRange returns the date range of a log file
+func (a *App) GetFileDateRange(filePath string) (*models.DateRange, error) {
+	return a.fileService.GetFileDateRange(filePath)
+}
+
 // ReadLogFile reads the content of a log file
 func (a *App) ReadLogFile(filePath string) (*models.LogContent, error) {
 	return a.fileService.ReadLogFile(filePath)
+}
+
+// ReadLogFileChunk reads a specific chunk of a log file
+func (a *App) ReadLogFileChunk(filePath string, startLine, endLine int) (*models.LogContent, error) {
+	return a.fileService.ReadLogFileChunk(filePath, startLine, endLine)
 }
 
 // GetFilesInDirectory returns all log files in a directory
@@ -127,24 +145,63 @@ func (a *App) GetSystemInfo() (*models.SystemInfo, error) {
 	return a.systemService.GetSystemInfo()
 }
 
-// HandleFileDrop 处理文件拖拽
-func (a *App) HandleFileDrop(filePath string) error {
-	// 使用现有的 ReadLogFile 方法读取文件
-	logFile, err := a.ReadLogFile(filePath)
-	if err != nil {
-		// 发送错误事件到前端
-		runtime.EventsEmit(a.ctx, "file-drop-error", map[string]interface{}{
-			"error": err.Error(),
-			"path":  filePath,
-		})
-		return err
+// AnalyzeLogFile 分析日志文件
+func (a *App) AnalyzeLogFile(filePath string) (*models.AnalysisResult, error) {
+	return a.analysisService.AnalyzeLogFile(filePath)
+}
+
+// AnalyzeSpecificIP 分析特定IP
+func (a *App) AnalyzeSpecificIP(filePath, targetIP string) (*models.SpecificIPResult, error) {
+	return a.analysisService.AnalyzeSpecificIP(filePath, targetIP)
+}
+
+// AnalyzeLogFileWithProgress 分析日志文件（支持进度）
+func (a *App) AnalyzeLogFileWithProgress(filePath, sessionID string) (*models.AnalysisResult, error) {
+	return a.analysisService.AnalyzeLogFileWithProgress(filePath, sessionID)
+}
+
+// StartAnalysis 开始分析会话
+func (a *App) StartAnalysis(sessionID string) {
+	a.analysisService.StartAnalysis(sessionID)
+}
+
+// CancelAnalysis 取消分析
+func (a *App) CancelAnalysis(sessionID string) {
+	a.analysisService.CancelAnalysis(sessionID)
+}
+
+// SplitFile 分片文件
+func (a *App) SplitFile(options models.FileSplitOptions) (*models.FileSplitResult, error) {
+	splitterOptions := services.SplitOptions{
+		Strategy:     services.SplitStrategy(options.Strategy),
+		FilePath:     options.FilePath,
+		OutputDir:    options.OutputDir,
+		DatePattern:  options.DatePattern,
+		DaysPerFile:  options.DaysPerFile,
+		SizePerFile:  options.SizePerFile,
+		LinesPerFile: options.LinesPerFile,
 	}
 
-	// 发送成功事件到前端
-	runtime.EventsEmit(a.ctx, "file-drop-success", map[string]interface{}{
-		"file": logFile,
-		"path": filePath,
-	})
+	result, err := a.fileSplitterService.SplitFile(splitterOptions)
+	if err != nil {
+		return nil, err
+	}
 
-	return nil
+	return &models.FileSplitResult{
+		Success:     result.Success,
+		Message:     result.Message,
+		OutputFiles: result.OutputFiles,
+		TotalFiles:  result.TotalFiles,
+		TotalSize:   result.TotalSize,
+	}, nil
+}
+
+// GetCommonDatePatterns 获取常用日期模式
+func (a *App) GetCommonDatePatterns() []models.DatePattern {
+	return a.fileSplitterService.GetCommonDatePatterns()
+}
+
+// OpenDirectoryDialogForSplit 为分片选择输出目录
+func (a *App) OpenDirectoryDialogForSplit() (string, error) {
+	return a.dialogService.OpenDirectoryDialog()
 }

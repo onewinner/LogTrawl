@@ -28,9 +28,9 @@
           <el-icon class="action-icon"><DocumentCopy /></el-icon>
           <span class="action-text">从剪贴板导入</span>
         </div>
-        <div class="action-item" @click="openFromUrl">
+        <div class="action-item disabled">
           <el-icon class="action-icon"><Link /></el-icon>
-          <span class="action-text">从URL导入</span>
+          <span class="action-text">从URL导入 (暂未开放)</span>
         </div>
         <div class="action-item" @click="openProject">
           <el-icon class="action-icon"><Collection /></el-icon>
@@ -43,11 +43,11 @@
     <div class="section">
       <div class="section-title">最近打开</div>
       <div class="recent-files">
-        <div 
-          v-for="file in appStore.recentFiles" 
-          :key="file.id"
+        <div
+          v-for="file in appStore.recentFiles"
+          :key="file.path"
           class="recent-file-item"
-          @click="openRecentFile(file)"
+          @click="openRecentFile(file.path)"
         >
           <el-icon class="file-icon">
             <Document />
@@ -105,7 +105,7 @@
 
 <script setup lang="ts">
 import { useAppStore, type LogFile } from '@/stores/app'
-import { ElMessage } from 'element-plus'
+import { ElMessage, ElMessageBox } from 'element-plus'
 import {
   Document,
   FolderOpened,
@@ -115,7 +115,7 @@ import {
   Collection,
   Close
 } from '@element-plus/icons-vue'
-import { OpenFileDialog, OpenDirectoryDialog, GetFileInfo, GetFilesInDirectory, GetRecentFiles, AddRecentFile } from 'wailsjs/go/main/App'
+import { OpenFileDialog, OpenDirectoryDialog, GetFileInfo, GetFilesInDirectory } from 'wailsjs/go/main/App'
 import { onMounted, ref, onUnmounted } from 'vue'
 
 const appStore = useAppStore()
@@ -153,34 +153,9 @@ onUnmounted(() => {
   document.removeEventListener('mouseup', stopResize)
 })
 
-// 加载最近文件
-const loadRecentFiles = async () => {
-  try {
-    const recentFiles = await GetRecentFiles()
-    if (recentFiles && recentFiles.length > 0) {
-      // 清空现有的最近文件列表
-      appStore.recentFiles.length = 0
-      // 添加新的最近文件
-      recentFiles.forEach(file => {
-        const logFile: LogFile = {
-          id: file.id,
-          name: file.name,
-          path: file.path,
-          size: file.size,
-          lastModified: new Date(file.lastModified),
-          isOpen: false
-        }
-        appStore.recentFiles.push(logFile)
-      })
-    }
-  } catch (error) {
-    console.error('加载最近文件失败:', error)
-  }
-}
-
 // 组件挂载时加载最近文件
 onMounted(() => {
-  loadRecentFiles()
+  appStore.loadRecentFiles()
 })
 
 // 方法
@@ -204,11 +179,6 @@ const openFile = async () => {
         if (!appStore.sidebarCollapsed) {
           appStore.toggleSidebar()
         }
-
-        // 添加到最近文件列表
-        await AddRecentFile(filePath)
-        // 重新加载最近文件列表
-        await loadRecentFiles()
 
         ElMessage.success(`已打开文件: ${fileInfo.name}`)
       }
@@ -247,21 +217,229 @@ const openFolder = async () => {
   }
 }
 
-const openFromClipboard = () => {
-  ElMessage.info('剪贴板导入功能开发中...')
-}
-
-const openFromUrl = () => {
-  ElMessage.info('URL导入功能开发中...')
-}
-
-const openProject = () => {
-  ElMessage.info('项目功能开发中...')
-}
-
-const openRecentFile = async (file: LogFile) => {
+const openFromClipboard = async () => {
   try {
-    const fileInfo = await GetFileInfo(file.path)
+    // 读取剪切板内容
+    const clipboardText = await navigator.clipboard.readText()
+
+    if (!clipboardText || clipboardText.trim() === '') {
+      ElMessage.warning('剪切板为空或无法读取')
+      return
+    }
+
+    // 弹出对话框让用户输入文件名
+    const { value: fileName } = await ElMessageBox.prompt(
+      '请输入文件名（不需要扩展名）',
+      '从剪切板导入',
+      {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        inputPattern: /^[^<>:"/\\|?*]+$/,
+        inputErrorMessage: '文件名不能包含特殊字符',
+        inputValue: `clipboard_${new Date().getTime()}`
+      }
+    )
+
+    if (!fileName) {
+      return
+    }
+
+    // 创建临时文件
+    const logContent = clipboardText.trim()
+    const tempFileName = `${fileName}.log`
+
+    // 创建一个虚拟的文件对象
+    const logFile: LogFile = {
+      id: `clipboard_${Date.now()}`,
+      name: tempFileName,
+      path: `temp://${tempFileName}`,
+      size: new Blob([logContent]).size,
+      lastModified: new Date(),
+      isOpen: true,
+      content: logContent // 添加内容字段用于临时文件
+    }
+
+    // 添加到应用状态
+    appStore.addLogFile(logFile)
+
+    // 自动隐藏侧边栏
+    if (!appStore.sidebarCollapsed) {
+      appStore.toggleSidebar()
+    }
+
+    ElMessage.success(`已从剪切板导入: ${tempFileName}`)
+
+  } catch (error) {
+    if (error === 'cancel') {
+      return // 用户取消
+    }
+    console.error('从剪切板导入失败:', error)
+    ElMessage.error('从剪切板导入失败: ' + (error as Error).message)
+  }
+}
+
+// const openFromUrl = () => {
+//   ElMessage.info('URL导入功能开发中...')
+// }
+
+const openProject = async () => {
+  try {
+    // 创建文件输入元素
+    const input = document.createElement('input')
+    input.type = 'file'
+    input.accept = '.ltproj'
+    input.style.display = 'none'
+
+    // 监听文件选择
+    input.onchange = async (event) => {
+      const file = (event.target as HTMLInputElement).files?.[0]
+      if (!file) return
+
+      try {
+        const text = await file.text()
+        const projectData = JSON.parse(text)
+
+        // 验证项目文件格式
+        if (!validateProjectData(projectData)) {
+          ElMessage.error('无效的项目文件格式')
+          return
+        }
+
+        // 加载项目
+        await loadProject(projectData)
+        ElMessage.success(`项目 "${file.name}" 加载成功`)
+
+      } catch (error) {
+        console.error('加载项目失败:', error)
+        ElMessage.error('加载项目失败: ' + (error as Error).message)
+      } finally {
+        document.body.removeChild(input)
+      }
+    }
+
+    // 触发文件选择
+    document.body.appendChild(input)
+    input.click()
+
+  } catch (error) {
+    console.error('打开项目失败:', error)
+    ElMessage.error('打开项目失败')
+  }
+}
+
+// 验证项目数据格式
+const validateProjectData = (data: any): boolean => {
+  try {
+    return (
+      data &&
+      typeof data === 'object' &&
+      data.version &&
+      data.createdAt &&
+      data.metadata &&
+      Array.isArray(data.openFiles) &&
+      data.fileStates &&
+      data.globalSettings
+    )
+  } catch {
+    return false
+  }
+}
+
+// 加载项目
+const loadProject = async (projectData: any) => {
+  try {
+    console.log('📂 开始加载项目:', projectData.metadata)
+
+    // 1. 清空当前状态
+    appStore.clearAllFiles()
+
+    // 2. 恢复全局设置
+    if (projectData.globalSettings) {
+      const settings = projectData.globalSettings
+      appStore.showLineNumbers = settings.showLineNumbers ?? true
+      appStore.wordWrap = settings.wordWrap ?? true
+      appStore.syntaxHighlight = settings.syntaxHighlight ?? true
+
+      // 通知工具栏恢复其他设置（高亮词现在是文件独立的）
+      window.dispatchEvent(new CustomEvent('restoreProjectSettings', {
+        detail: {
+          currentWindow: settings.currentWindow || 'main'
+        }
+      }))
+    }
+
+    // 3. 打开文件
+    let activeFilePath = ''
+    console.log('📁 准备打开文件:', projectData.openFiles.length, '个文件')
+
+    for (const fileInfo of projectData.openFiles) {
+      try {
+        console.log('📄 正在打开文件:', fileInfo.path)
+        const result = await appStore.openFile(fileInfo.path, fileInfo.encoding)
+        console.log('✅ 文件打开成功:', result?.name)
+
+        if (fileInfo.isActive) {
+          activeFilePath = fileInfo.path
+          console.log('🎯 设置活动文件:', activeFilePath)
+        }
+      } catch (error) {
+        console.warn(`❌ 无法打开文件 ${fileInfo.path}:`, error)
+        ElMessage.warning(`文件 ${fileInfo.name} 无法打开，可能已被移动或删除`)
+      }
+    }
+
+    // 4. 等待所有文件加载完成后再恢复状态
+    await new Promise(resolve => setTimeout(resolve, 200))
+
+    // 5. 切换到活动文件
+    if (activeFilePath && appStore.openFiles.find(f => f.path === activeFilePath)) {
+      const activeFile = appStore.openFiles.find(f => f.path === activeFilePath)
+      if (activeFile) {
+        console.log('🎯 切换到活动文件:', activeFile.name)
+        appStore.setCurrentFile(activeFile.id)
+
+        // 等待文件内容加载
+        await new Promise(resolve => setTimeout(resolve, 300))
+      }
+    } else if (appStore.openFiles.length > 0) {
+      // 如果没有指定活动文件，选择第一个文件
+      console.log('📄 选择第一个文件作为活动文件:', appStore.openFiles[0].name)
+      appStore.setCurrentFile(appStore.openFiles[0].id)
+      activeFilePath = appStore.openFiles[0].path
+
+      // 等待文件内容加载
+      await new Promise(resolve => setTimeout(resolve, 300))
+    }
+
+    // 6. 恢复文件状态
+    if (projectData.fileStates && activeFilePath) {
+      console.log('📁 开始恢复文件状态...')
+      window.dispatchEvent(new CustomEvent('restoreProjectFileStates', {
+        detail: {
+          fileStates: projectData.fileStates,
+          activeFilePath: activeFilePath
+        }
+      }))
+
+      // 等待状态恢复完成
+      await new Promise(resolve => setTimeout(resolve, 500))
+    }
+
+    // 7. 强制刷新界面
+    console.log('🔄 强制刷新界面状态...')
+    window.dispatchEvent(new CustomEvent('forceRefreshUI'))
+
+    console.log('✅ 项目加载完成')
+
+  } catch (error) {
+    console.error('加载项目过程中出错:', error)
+    throw error
+  }
+}
+
+const openRecentFile = async (filePath: string) => {
+  try {
+    const fileInfo = await GetFileInfo(filePath)
     if (fileInfo) {
       const logFile: LogFile = {
         id: fileInfo.id,
@@ -277,14 +455,16 @@ const openRecentFile = async (file: LogFile) => {
       if (!appStore.sidebarCollapsed) {
         appStore.toggleSidebar()
       }
-
-      // 更新最近文件列表
-      await AddRecentFile(file.path)
-      await loadRecentFiles()
+    } else {
+      ElMessage.error('文件不存在或无法访问')
+      // 从最近文件列表中移除无效文件
+      appStore.removeFromRecentFiles(filePath)
     }
   } catch (error) {
     console.error('打开最近文件失败:', error)
     ElMessage.error('文件可能已被移动或删除')
+    // 从最近文件列表中移除无效文件
+    appStore.removeFromRecentFiles(filePath)
   }
 }
 </script>
@@ -301,6 +481,7 @@ const openRecentFile = async (file: LogFile) => {
   position: relative;
   min-width: 100px;
   max-width: 500px;
+  z-index: 500; /* 与时间线侧边栏相同层级 */
 }
 
 .sidebar.collapsed {
@@ -319,7 +500,7 @@ const openRecentFile = async (file: LogFile) => {
   height: 100%;
   background-color: transparent;
   cursor: col-resize;
-  z-index: 10;
+  z-index: 510; /* 确保在侧边栏之上 */
 }
 
 .resize-handle:hover {
@@ -384,14 +565,31 @@ const openRecentFile = async (file: LogFile) => {
   background-color: #e5e7eb;
 }
 
+.action-item.disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.action-item.disabled:hover {
+  background-color: transparent;
+}
+
 .action-icon {
   color: #3b82f6;
   font-size: 16px;
 }
 
+.action-item.disabled .action-icon {
+  color: #9ca3af;
+}
+
 .action-text {
   font-size: 13px;
   color: #374151;
+}
+
+.action-item.disabled .action-text {
+  color: #9ca3af;
 }
 
 .recent-files,

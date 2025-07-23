@@ -1,6 +1,6 @@
 <template>
   <div
-    class="main-layout"
+    class="main-layout wails-drop-target"
     @dragover.prevent="handleDragOver"
     @dragleave.prevent="handleDragLeave"
     @drop.prevent="handleDrop"
@@ -32,13 +32,33 @@
       <div class="content-area">
         <WelcomePage v-if="appStore.currentView === 'welcome'" />
         <LogViewer v-else-if="appStore.currentView === 'log-viewer'" />
+        <AnalysisPage
+          v-else-if="appStore.currentView === 'analysis'"
+          :file-path="analysisFilePath"
+          :file-name="analysisFileName"
+        />
       </div>
     </div>
+
+    <!-- 时间线面板 -->
+    <TimelinePanel />
+
+    <!-- 全局加载组件 -->
+    <GlobalLoading />
+
+    <!-- 文件分片对话框 -->
+    <FileSplitterDialog
+      v-model="showFileSplitter"
+      :file-path="splitterFilePath"
+      :file-name="splitterFileName"
+      :file-size="splitterFileSize"
+      @split-complete="handleSplitComplete"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
 import { Upload } from '@element-plus/icons-vue'
 import { useAppStore } from '@/stores/app'
@@ -46,13 +66,26 @@ import ToolBar from './ToolBar.vue'
 import SideBar from './SideBar.vue'
 import WelcomePage from './WelcomePage.vue'
 import LogViewer from './LogViewer.vue'
+import TimelinePanel from './TimelinePanel.vue'
+import GlobalLoading from './GlobalLoading.vue'
+import AnalysisPage from './AnalysisPage.vue'
+import FileSplitterDialog from './FileSplitterDialog.vue'
 
 const appStore = useAppStore()
 
 // 拖拽状态
 const isDragOver = ref(false)
 const isWailsEnvironment = ref(false)
-let hasReceivedBackendResponse = false
+
+// 分析页面状态
+const analysisFilePath = ref('')
+const analysisFileName = ref('')
+
+// 分片对话框状态
+const showFileSplitter = ref(false)
+const splitterFilePath = ref('')
+const splitterFileName = ref('')
+const splitterFileSize = ref(0)
 
 // 支持的文件类型
 const supportedFileTypes = ['.log', '.txt', '.text', '.out', '.err', '.trace']
@@ -81,13 +114,10 @@ const handleDragLeave = (event: DragEvent) => {
   }
 }
 
-// 处理文件拖拽 - 在 Wails 环境下等待后端处理，在浏览器环境下使用前端处理
+// 处理文件拖拽 - 在 Wails 环境下由 OnFileDrop 处理，在浏览器环境下使用前端处理
 const handleDrop = async (event: DragEvent) => {
   event.preventDefault()
   isDragOver.value = false
-
-  // 重置后端响应标志
-  hasReceivedBackendResponse = false
 
   if (!event.dataTransfer?.files.length) {
     return
@@ -108,11 +138,49 @@ const handleDrop = async (event: DragEvent) => {
     return
   }
 
-  // 检查文件大小（限制为100MB）
-  const maxSize = 100 * 1024 * 1024 // 100MB
+  // 检查文件大小（限制为1GB）
+  const maxSize = 1024 * 1024 * 1024 // 1GB
   if (file.size > maxSize) {
     ElMessage({
-      message: '文件过大，请选择小于100MB的文件',
+      message: '文件过大，超过1GB的文件需要使用分片功能处理',
+      type: 'warning',
+      duration: 3000,
+      showClose: true,
+      offset: 20,
+      customClass: 'message-bottom-right'
+    })
+
+    // 触发分片处理流程
+    showFileSplitter.value = true
+    splitterFilePath.value = file.name // 在浏览器环境中使用文件名
+    splitterFileName.value = file.name
+    splitterFileSize.value = file.size
+    return
+  }
+
+  // 在 Wails 环境下，OnFileDrop 会自动处理，这里只需要阻止浏览器默认行为
+}
+
+
+
+
+
+// 处理 Wails 文件拖拽 - 优化版本
+const handleWailsFileDrop = async (filePath: string) => {
+  console.log('🚀 开始处理 Wails 文件拖拽:', filePath)
+
+  // 提取路径信息
+  const pathInfo = getPathInfo(filePath)
+  console.log('📁 路径信息:', pathInfo)
+
+  // 检查文件类型
+  const fullFileName = pathInfo.Name + '.' + pathInfo.Ext
+  console.log('🔍 检查文件类型:', fullFileName)
+
+  if (!isSupportedFile(fullFileName)) {
+    console.warn('❌ 不支持的文件类型:', fullFileName)
+    ElMessage({
+      message: `不支持的文件类型。支持的格式：${supportedFileTypes.join(', ')}`,
       type: 'warning',
       duration: 3000,
       showClose: true,
@@ -122,122 +190,209 @@ const handleDrop = async (event: DragEvent) => {
     return
   }
 
-  if (isWailsEnvironment.value) {
-    // 在 Wails 环境下，后端的原生拖拽处理会自动触发
-    // 这里我们只需要阻止浏览器的默认行为，等待后端事件
-    console.log('等待后端处理文件拖拽:', file.name)
+  console.log('✅ 文件类型检查通过，开始处理文件')
 
-    // 设置一个超时，如果后端没有响应，则回退到前端处理
-    setTimeout(() => {
-      if (!hasReceivedBackendResponse) {
-        console.log('后端处理超时，回退到前端处理')
-        handleFileWithFrontend(file)
-      }
-    }, 2000) // 2秒超时
-  } else {
-    // 在浏览器环境中，直接使用前端处理
-    await handleFileWithFrontend(file)
+  try {
+    // 如果有正在进行的加载，先中断
+    if (appStore.isGlobalLoading) {
+      console.log('🛑 中断之前的文件加载操作')
+      appStore.setGlobalLoading(false)
+      // 给一点时间让之前的操作清理
+      await new Promise(resolve => setTimeout(resolve, 100))
+    }
+
+    // 启动加载状态
+    appStore.setGlobalLoading(true, '正在检查文件信息...', 10)
+
+    // 先获取文件信息以判断文件大小
+    const { GetFileInfo } = await import('wailsjs/go/main/App')
+    const fileInfo = await GetFileInfo(filePath)
+    const fileSizeMB = fileInfo.size / (1024 * 1024)
+    const fileSizeGB = fileInfo.size / (1024 * 1024 * 1024)
+
+    console.log('📊 文件信息:', {
+      name: fileInfo.name,
+      size: `${fileSizeMB.toFixed(2)} MB`,
+      lines: fileInfo.lines || '未知'
+    })
+
+    // 检查文件大小是否超过1GB限制
+    if (fileSizeGB > 1) {
+      appStore.setGlobalLoading(false) // 关闭加载状态
+
+      ElMessage({
+        message: `文件大小 ${fileSizeGB.toFixed(2)} GB 超过1GB限制，请使用分片功能处理`,
+        type: 'warning',
+        duration: 5000,
+        showClose: true,
+        offset: 20,
+        customClass: 'message-bottom-right'
+      })
+
+      // 触发分片处理流程
+      showFileSplitter.value = true
+      splitterFilePath.value = filePath
+      splitterFileName.value = fileInfo.name
+      splitterFileSize.value = fileInfo.size
+      return // 重要：直接返回，不继续执行后续的文件打开逻辑
+    }
+
+    // 根据文件大小显示不同的加载信息
+    if (fileSizeMB > 200) {
+      appStore.setGlobalLoading(true, `正在处理大文件 (${fileSizeMB.toFixed(1)} MB)...`, 20)
+    } else if (fileSizeMB > 10) {
+      appStore.setGlobalLoading(true, `正在加载文件 (${fileSizeMB.toFixed(1)} MB)...`, 20)
+    } else {
+      appStore.setGlobalLoading(true, '正在加载文件...', 30)
+    }
+
+    // 使用 setTimeout 让 UI 有时间更新
+    await new Promise(resolve => setTimeout(resolve, 100))
+
+    // 使用 AppStore 的 openFile 方法
+    appStore.updateLoadingProgress(50, '正在读取文件内容...')
+    await appStore.openFile(filePath)
+
+    appStore.updateLoadingProgress(90, '正在初始化界面...')
+
+    // 给界面一些时间来渲染
+    await new Promise(resolve => setTimeout(resolve, 200))
+
+    console.log('✅ 文件拖拽处理完成')
+
+    // 关闭加载状态
+    appStore.setGlobalLoading(false)
+
+    ElMessage({
+      message: `文件 ${pathInfo.Name}.${pathInfo.Ext} 已成功打开`,
+      type: 'success',
+      duration: 3000,
+      showClose: true,
+      offset: 20,
+      customClass: 'message-bottom-right'
+    })
+  } catch (error) {
+    console.error('❌ 文件拖拽处理失败:', error)
+
+    // 关闭加载状态
+    appStore.setGlobalLoading(false)
+
+    ElMessage({
+      message: `打开文件失败: ${error}`,
+      type: 'error',
+      duration: 5000,
+      showClose: true,
+      offset: 20,
+      customClass: 'message-bottom-right'
+    })
   }
 }
 
-// 前端处理文件的备用方法
-const handleFileWithFrontend = async (file: File) => {
-  const fileContent = await readFileContent(file)
+// 处理分片完成
+const handleSplitComplete = (result) => {
+  console.log('分片完成:', result)
+  ElMessage.success(`文件已分片为 ${result.totalFiles} 个文件`)
 
-  // 创建文件对象
-  const logFile = {
-    id: Date.now().toString(),
-    name: file.name,
-    path: file.name,
-    size: file.size,
-    lastModified: new Date(file.lastModified),
-    isOpen: true
+  // 可以在这里提供选择分片文件进行分析的选项
+  // 或者自动打开分片文件所在目录
+}
+
+// 前端路径信息提取
+const getPathInfo = (filePath: string) => {
+  const parts = filePath.split(/[\/\\]/)
+  const fileName = parts[parts.length - 1]
+  const extParts = fileName.split('.')
+  const ext = extParts.length > 1 ? extParts[extParts.length - 1] : ''
+
+  return {
+    Name: fileName.replace(/\.[^/.]+$/, ""), // 移除扩展名
+    Ext: ext.toLowerCase(),
+    Path: filePath
   }
-
-  // 添加到store
-  appStore.addLogFile(logFile)
-  appStore.setLogContent(fileContent.split('\n'))
-  appStore.setCurrentFile(logFile.id)
-
-  ElMessage({
-    message: `成功打开文件：${file.name}`,
-    type: 'success',
-    duration: 2000,
-    showClose: true,
-    offset: 20,
-    customClass: 'message-bottom-right'
-  })
 }
 
-// 读取文件内容
-const readFileContent = (file: File): Promise<string> => {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader()
-    reader.onload = (e) => {
-      resolve(e.target?.result as string || '')
-    }
-    reader.onerror = () => {
-      reject(new Error('文件读取失败'))
-    }
-    reader.readAsText(file, 'utf-8')
-  })
-}
-
-// 后端事件监听
-let fileDropSuccessListener: any = null
-let fileDropErrorListener: any = null
-
-// 处理后端文件拖拽成功事件
-const handleFileDropSuccess = (data: any) => {
-  hasReceivedBackendResponse = true
-  ElMessage({
-    message: `成功打开文件：${data.file?.name || '未知文件'}`,
-    type: 'success',
-    duration: 2000,
-    showClose: true,
-    offset: 20,
-    customClass: 'message-bottom-right'
-  })
-}
-
-// 处理后端文件拖拽错误事件
-const handleFileDropError = (data: any) => {
-  hasReceivedBackendResponse = true
-  ElMessage({
-    message: `打开文件失败：${data.error || '未知错误'}`,
-    type: 'error',
-    duration: 3000,
-    showClose: true,
-    offset: 20,
-    customClass: 'message-bottom-right'
-  })
-}
+// Wails 文件拖拽处理
 
 // 生命周期钩子
+// 打开分析页面
+const openAnalysisPage = (filePath: string, fileName: string) => {
+  console.log('📊 打开分析页面:', { filePath, fileName })
+  analysisFilePath.value = filePath
+  analysisFileName.value = fileName
+  appStore.currentView = 'analysis'
+}
+
+// 关闭分析页面
+const closeAnalysisPage = () => {
+  console.log('📊 关闭分析页面')
+  appStore.currentView = 'log-viewer'
+  analysisFilePath.value = ''
+  analysisFileName.value = ''
+}
+
 onMounted(async () => {
+  console.log('MainLayout 组件已挂载，尝试初始化 Wails 拖拽功能')
+
+  // 监听分析页面事件
+  window.addEventListener('openAnalysisPage', (event: any) => {
+    const { filePath, fileName } = event.detail
+    openAnalysisPage(filePath, fileName)
+  })
+
+  window.addEventListener('closeAnalysisPage', () => {
+    closeAnalysisPage()
+  })
+
   try {
-    // 导入 Wails 事件系统
-    const { EventsOn } = await import('wailsjs/runtime/runtime')
+    // 导入 Wails 运行时
+    const runtime = await import('wailsjs/runtime/runtime')
+    console.log('Wails 运行时导入成功:', runtime)
+
+    const { OnFileDrop } = runtime
 
     // 设置 Wails 环境标志
     isWailsEnvironment.value = true
+    console.log('Wails 环境已设置为 true')
 
-    // 监听后端文件拖拽事件
-    fileDropSuccessListener = EventsOn('file-drop-success', handleFileDropSuccess)
-    fileDropErrorListener = EventsOn('file-drop-error', handleFileDropError)
+    // 使用 Wails 提供的 OnFileDrop API
+    console.log('正在设置 OnFileDrop 监听器...')
+
+    // 尝试不同的 OnFileDrop 调用方式
+    try {
+      OnFileDrop((x: number, y: number, paths: string[]) => {
+        console.log('🎯 Wails OnFileDrop 触发!', { x, y, paths })
+
+        // 处理每个拖放的文件路径
+        paths.forEach(async (filePath) => {
+          console.log('处理文件路径:', filePath)
+          await handleWailsFileDrop(filePath)
+        })
+      }, true) // true 表示启用拖放目标检测
+
+      console.log('OnFileDrop 监听器设置成功 (带目标检测)')
+    } catch (dropError) {
+      console.warn('带目标检测的 OnFileDrop 设置失败，尝试不带目标检测:', dropError)
+
+      // 尝试不带目标检测参数
+      OnFileDrop((x: number, y: number, paths: string[]) => {
+        console.log('🎯 Wails OnFileDrop 触发! (无目标检测)', { x, y, paths })
+
+        // 处理每个拖放的文件路径
+        paths.forEach(async (filePath) => {
+          console.log('处理文件路径:', filePath)
+          await handleWailsFileDrop(filePath)
+        })
+      }, false)
+
+      console.log('OnFileDrop 监听器设置成功 (无目标检测)')
+    }
+
+    console.log('OnFileDrop 监听器设置完成')
+
   } catch (error) {
-    // Wails 事件系统不可用，保持默认的 false 值
+    console.error('Wails 运行时初始化失败:', error)
+    // Wails 运行时不可用，保持默认的 false 值
     isWailsEnvironment.value = false
-  }
-})
-
-onUnmounted(() => {
-  // 清理事件监听器
-  if (fileDropSuccessListener) {
-    fileDropSuccessListener()
-  }
-  if (fileDropErrorListener) {
-    fileDropErrorListener()
   }
 })
 </script>
@@ -256,6 +411,12 @@ onUnmounted(() => {
   left: 0;
 }
 
+/* Wails 拖拽目标标记 */
+.wails-drop-target {
+  --wails-drop-target: drop;
+}
+
+
 .main-content {
   flex: 1;
   display: flex;
@@ -270,6 +431,17 @@ onUnmounted(() => {
   flex-direction: column;
   overflow: hidden;
   background-color: #ffffff;
+  transition: margin-right 0.3s ease;
+}
+
+/* 当时间线面板显示时，为主内容区域添加右边距 */
+.main-layout:has(.timeline-panel-visible) .content-area {
+  margin-right: 350px; /* 调整为时间线面板的实际宽度 */
+}
+
+/* 当有时间线条目但面板关闭时，为侧边栏留出空间 */
+.main-layout:has(.timeline-sidebar:not(.timeline-sidebar-hidden)) .content-area {
+  margin-right: 40px;
 }
 
 /* 拖拽相关样式 */

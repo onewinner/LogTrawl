@@ -4,11 +4,25 @@ import {models} from '../models';
 
 export function AddRecentFile(arg1:string):Promise<void>;
 
+export function AnalyzeLogFile(arg1:string):Promise<models.AnalysisResult>;
+
+export function AnalyzeLogFileWithProgress(arg1:string,arg2:string):Promise<models.AnalysisResult>;
+
+export function AnalyzeSpecificIP(arg1:string,arg2:string):Promise<models.SpecificIPResult>;
+
+export function CancelAnalysis(arg1:string):Promise<void>;
+
 export function ClearRecentFiles():Promise<void>;
 
 export function ExportLogLines(arg1:Array<string>,arg2:string):Promise<void>;
 
+export function GetCommonDatePatterns():Promise<Array<models.DatePattern>>;
+
+export function GetFileDateRange(arg1:string):Promise<models.DateRange>;
+
 export function GetFileInfo(arg1:string):Promise<models.LogFile>;
+
+export function GetFileLineCount(arg1:string):Promise<number>;
 
 export function GetFilesInDirectory(arg1:string):Promise<Array<models.LogFile>>;
 
@@ -18,13 +32,15 @@ export function GetSystemInfo():Promise<models.SystemInfo>;
 
 export function Greet(arg1:string):Promise<string>;
 
-export function HandleFileDrop(arg1:string):Promise<void>;
-
 export function OpenDirectoryDialog():Promise<string>;
+
+export function OpenDirectoryDialogForSplit():Promise<string>;
 
 export function OpenFileDialog():Promise<string>;
 
 export function ReadLogFile(arg1:string):Promise<models.LogContent>;
+
+export function ReadLogFileChunk(arg1:string,arg2:number,arg3:number):Promise<models.LogContent>;
 
 export function RemoveRecentFile(arg1:string):Promise<void>;
 
@@ -33,3 +49,7 @@ export function SaveFileDialog():Promise<string>;
 export function SearchInFile(arg1:string,arg2:string,arg3:boolean):Promise<Array<models.SearchResult>>;
 
 export function SearchInFileWithRegex(arg1:string,arg2:string,arg3:boolean):Promise<Array<models.SearchResult>>;
+
+export function SplitFile(arg1:models.FileSplitOptions):Promise<models.FileSplitResult>;
+
+export function StartAnalysis(arg1:string):Promise<void>;

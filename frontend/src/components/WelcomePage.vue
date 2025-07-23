@@ -101,11 +101,11 @@
       <div class="recent-section" v-if="appStore.recentFiles.length > 0">
         <h2 class="recent-title">最近使用</h2>
         <div class="recent-files-grid">
-          <div 
-            v-for="file in appStore.recentFiles.slice(0, 6)" 
-            :key="file.id"
+          <div
+            v-for="file in appStore.recentFiles.slice(0, 6)"
+            :key="file.path"
             class="recent-file-card"
-            @click="openRecentFile(file)"
+            @click="openRecentFile(file.path)"
           >
             <div class="file-icon">
               <LogIcon :size="20" color="#6b7280" />
@@ -114,8 +114,7 @@
               <div class="file-name" :title="file.name">{{ file.name }}</div>
               <div class="file-path" :title="file.path">{{ file.path }}</div>
               <div class="file-meta">
-                <span class="file-size">{{ formatFileSize(file.size) }}</span>
-                <span class="file-date">{{ formatDate(file.lastModified) }}</span>
+                <span class="file-date">{{ formatDate(file.lastOpened) }}</span>
               </div>
             </div>
           </div>
@@ -126,7 +125,7 @@
 </template>
 
 <script setup lang="ts">
-import { useAppStore, type LogFile } from '@/stores/app'
+import { useAppStore } from '@/stores/app'
 import {
   FolderOpened,
   Folder,
@@ -164,16 +163,29 @@ const openProject = () => {
   // TODO: 实现项目打开逻辑
 }
 
-const openRecentFile = (file: LogFile) => {
-  appStore.addLogFile(file)
-}
-
-const formatFileSize = (bytes: number): string => {
-  if (bytes === 0) return '0 B'
-  const k = 1024
-  const sizes = ['B', 'KB', 'MB', 'GB']
-  const i = Math.floor(Math.log(bytes) / Math.log(k))
-  return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i]
+const openRecentFile = async (filePath: string) => {
+  try {
+    const { GetFileInfo } = await import('wailsjs/go/main/App')
+    const fileInfo = await GetFileInfo(filePath)
+    if (fileInfo) {
+      const logFile = {
+        id: fileInfo.id,
+        name: fileInfo.name,
+        path: fileInfo.path,
+        size: fileInfo.size,
+        lastModified: new Date(fileInfo.lastModified),
+        isOpen: true
+      }
+      appStore.addLogFile(logFile)
+    } else {
+      // 文件不存在，从最近文件列表中移除
+      appStore.removeFromRecentFiles(filePath)
+    }
+  } catch (error) {
+    console.error('打开最近文件失败:', error)
+    // 文件打开失败，从最近文件列表中移除
+    appStore.removeFromRecentFiles(filePath)
+  }
 }
 
 const formatDate = (date: Date): string => {

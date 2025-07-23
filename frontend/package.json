@@ -1,7 +1,7 @@
 {
   "name": "LogTrawl",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -10,7 +10,9 @@
   },
   "dependencies": {
     "@element-plus/icons-vue": "^2.1.0",
+    "echarts": "^5.6.0",
     "element-plus": "^2.4.1",
+    "mermaid": "^11.9.0",
     "pinia": "^2.1.7",
     "vue": "^3.3.4"
   },
@@ -21,5 +23,6 @@
     "unplugin-vue-components": "^0.25.2",
     "vite": "^4.4.5",
     "vue-tsc": "^1.8.5"
-  }
-,"author":"onewin"}
+  },
+  "author": "onewin"
+}
