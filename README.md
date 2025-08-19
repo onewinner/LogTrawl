@@ -1,6 +1,5 @@
 # LogTrawl v1.0.0 🚀
 
-<div align="center">
 
 
 专业的日志文件分析工具
