@@ -443,12 +443,12 @@ Dec 25 10:00:01 server01 sshd[1234]: Accepted password for user from 192.168.1.1
 
 [compilelife/loginsight: loginsight致力于打造一款日志分析的利器](https://github.com/compilelife/loginsight)
 
-
+## 作者
 
 Made with ❤️ by [onewin](https://github.com/onewinner)
 欢迎关注作者公众号：
 
 <img width="860" height="860" alt="image" src="https://github.com/user-attachments/assets/c9eaade1-b8e9-47df-a62d-ac289b4c2cc5" />
 
+<img width="860" height="860" alt="image" src="https://www.star-history.com/#onewinner/LogTrawl&Date" />
 
-https://www.star-history.com/#onewinner/LogTrawl&Date
