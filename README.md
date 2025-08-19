@@ -450,5 +450,5 @@ Made with ❤️ by [onewin](https://github.com/onewinner)
 
 <img width="860" height="860" alt="image" src="https://github.com/user-attachments/assets/c9eaade1-b8e9-47df-a62d-ac289b4c2cc5" />
 
-<img width="860" height="860" alt="image" src="https://www.star-history.com/#onewinner/LogTrawl&Date" />
+[![Star History Chart](https://api.star-history.com/svg?repos=onewinner/LogTrawl&type=Date)](https://www.star-history.com/#onewinner/LogTrawl&Date)
 
