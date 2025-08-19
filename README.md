@@ -1,9 +1,10 @@
 ![](https://socialify.git.ci/onewinner/LogTrawl/image?custom_language=Go&description=1&font=Inter&forks=1&issues=1&language=1&logo=https%3A%2F%2Fraw.githubusercontent.com%2Fonewinner%2FLogTrawl%2F66c4dddac1318a630706d545742f871f7f4b7696%2Fassets%2F%25E6%2593%258D%25E4%25BD%259C%25E6%2597%25A5%25E5%25BF%2597.svg&name=1&owner=1&pulls=1&stargazers=1&theme=Auto)
 
+
 # LogTrawl v1.0.0 🚀
 
 
-<img align="" height="137px" src="https://img.shields.io/github/downloads/onewinner/LogTrawl/total?style=for-the-badge&color=blue" />
+<img align="" height="137px" src="https://img.shields.io/github/downloads/onewinner/LogTrawl/total?style=social&color=blue" /><img align="" height="137px" src="https://img.shields.io/github/watchers/onewinner/LogTrawl?style=social" />
 
 专业的日志文件分析工具
 
