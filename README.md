@@ -96,6 +96,32 @@ LogTrawl 是一个基于 Wails v2 框架开发的现代化桌面日志分析工�
 
 ### 📦 构建生产版本
 
+本项目提供了构建脚本以简化构建过程：
+
+```bash
+# Windows平台构建
+.\build.bat win
+
+# Linux平台构建（需要在Linux系统上运行）
+.\build.bat linux
+
+# macOS平台构建（需要在macOS系统上运行）
+.\build.bat mac
+
+# 构建所有支持的平台（当前仅支持Windows）
+.\build.bat all
+
+# 清理构建目录
+.\build.bat clean
+```
+
+注意：
+1. 由于Wails框架的限制，Linux和macOS平台的构建需要在相应的操作系统上进行
+2. Windows平台的构建可以在Windows系统上直接运行
+3. 构建完成后，可执行文件位于 `dist/` 目录下
+
+你也可以使用原始的Wails命令进行构建：
+
 ```bash
 # 构建所有平台
 wails build
@@ -106,7 +132,7 @@ wails build -platform darwin/amd64
 wails build -platform linux/amd64
 ```
 
-构建完成后，可执行文件位于 `build/bin/` 目录下。
+使用Wails命令构建时，可执行文件位于 `build/bin/` 目录下。
 
 ### 🎯 快速体验
 
@@ -310,6 +336,10 @@ Dec 25 10:00:01 server01 sshd[1234]: Accepted password for user from 192.168.1.1
 
 我们欢迎所有形式的贡献！无论是 bug 报告、功能请求、代码贡献还是文档改进。
 
+### 🔧 后续开源
+
+1. Star 500+根据情况开源
+
 ### 🐛 报告 Bug
 1. 在 [Issues](https://github.com/onewinner/LogTrawl/issues) 页面创建新的 issue
 2. 使用 Bug 报告模板
@@ -332,6 +362,20 @@ Dec 25 10:00:01 server01 sshd[1234]: Accepted password for user from 192.168.1.1
 
 ## 版本更新日志
 
+
+### v1.0.1 (2025-10-03) 🎉
+
+**🎯** **小版本更新**
+
+#### 🎨 界面优化
+
+- **黑色主题适配**: 在设置中添加黑色主题切换选项
+- **高亮词栏优化**: 多个高亮词时展示下拉滚动条，方便查看和管理
+
+#### 🔧 功能增强
+
+- **高亮词交互**: 支持双击编辑高亮词或点击选择高亮词，提升操作便捷性
+- **过滤器修复**: 修复过滤预加载导致的数量显示不正确问题
 
 ### v1.0.0 (2025-08-03) 🎉
 
@@ -415,3 +459,4 @@ Dec 25 10:00:01 server01 sshd[1234]: Accepted password for user from 192.168.1.1
 
 Made with ❤️ by [onewin](https://github.com/onewinner)
 
+https://www.star-history.com/#onewinner/LogTrawl&Date

@@ -27,7 +27,7 @@ func main() {
 
 	// Create application with options
 	err := wails.Run(&options.App{
-		Title:             "LogTrawl v1.0.0",
+		Title:             "LogTrawl v1.0.1",
 		Width:             1100,
 		Height:            700,
 		DisableResize:     false,
@@ -63,6 +63,7 @@ func main() {
 			// DisableFramelessWindowDecorations: false,
 			WebviewUserDataPath: "",
 			ZoomFactor: 1.0,
+			Theme: windows.SystemDefault, // 默认使用系统主题
 		},
 		// Mac platform specific options
 		Mac: &mac.Options{
@@ -74,7 +75,7 @@ func main() {
 				UseToolbar:                 false,
 				HideToolbarSeparator:       true,
 			},
-			Appearance:           mac.NSAppearanceNameDarkAqua,
+			Appearance:           mac.DefaultAppearance, // 默认使用系统外观
 			WebviewIsTransparent: true,
 			WindowIsTranslucent:  true,
 			About: &mac.AboutInfo{

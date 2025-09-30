@@ -1,0 +1,1473 @@
+/* 深色主题样式 */
+html.dark {
+  /* 背景色 */
+  --el-bg-color: #141414;
+  --el-bg-color-page: #0a0a0a;
+  --el-bg-color-overlay: #1d1e1f;
+  
+  /* 文字颜色 */
+  --el-text-color-primary: #e5eaf3;
+  --el-text-color-regular: #cfd3dc;
+  --el-text-color-secondary: #a3a6ad;
+  --el-text-color-placeholder: #8d9095;
+  --el-text-color-disabled: #6c6e72;
+  
+  /* 边框颜色 */
+  --el-border-color: #4c4d4f;
+  --el-border-color-light: #414243;
+  --el-border-color-lighter: #363637;
+  --el-border-color-extra-light: #2b2b2c;
+  
+  /* 填充颜色 */
+  --el-fill-color: #1d1d1f;
+  --el-fill-color-light: #262727;
+  --el-fill-color-lighter: #303031;
+  --el-fill-color-extra-light: #39393a;
+  --el-fill-color-blank: #141414;
+  
+  /* 自定义颜色 */
+  --dark-blue: #4d90fe;
+  --dark-green: #4ec9b0;
+  --dark-yellow: #d7ba7d;
+  --dark-orange: #f48771;
+  --dark-red: #f48771;
+  --dark-purple: #c586c0;
+  
+  /* 日志级别颜色 */
+  --dark-log-info: #4ec9b0;
+  --dark-log-debug: #d7ba7d;
+  --dark-log-warn: #dcdcaa;
+  --dark-log-error: #f48771;
+  --dark-log-system: #c586c0;
+}
+
+/* Element Plus 组件深色主题适配 */
+html.dark {
+  /* 卡片组件 */
+  .el-card {
+    background-color: var(--el-bg-color-overlay);
+    border-color: var(--el-border-color-light);
+    color: var(--el-text-color-primary);
+  }
+  
+  .el-card__header {
+    background-color: #1d1e1f;
+    border-color: var(--el-border-color-light);
+    color: var(--el-text-color-primary);
+  }
+  
+  /* 表格组件 */
+  .el-table {
+    background-color: var(--el-bg-color-overlay);
+    color: var(--el-text-color-primary);
+  }
+  
+  .el-table__header th {
+    background-color: #1d1e1f;
+    color: var(--el-text-color-primary);
+  }
+  
+  .el-table__body td {
+    background-color: var(--el-bg-color-overlay);
+    color: var(--el-text-color-regular);
+  }
+  
+  .el-table__row:hover td {
+    background-color: #262727;
+  }
+  
+  /* 对话框 */
+  .el-dialog {
+    background-color: var(--el-bg-color-overlay);
+    border-color: var(--el-border-color-light);
+  }
+  
+  .el-dialog__header {
+    border-color: var(--el-border-color-light);
+    color: var(--el-text-color-primary);
+  }
+  
+  .el-dialog__body {
+    color: var(--el-text-color-regular);
+  }
+  
+  .el-dialog__footer {
+    border-color: var(--el-border-color-light);
+  }
+  
+  /* 按钮 */
+  .el-button {
+    background-color: var(--el-fill-color-blank);
+    border-color: var(--el-border-color);
+    color: var(--el-text-color-regular);
+  }
+  
+  .el-button:hover {
+    background-color: var(--el-fill-color-light);
+    border-color: var(--el-border-color-light);
+    color: var(--el-text-color-primary);
+  }
+  
+  .el-button--primary {
+    background-color: #409eff;
+    border-color: #409eff;
+    color: white;
+  }
+  
+  .el-button--primary:hover {
+    background-color: #66b1ff;
+    border-color: #66b1ff;
+  }
+  
+  /* 输入框 */
+  .el-input__wrapper {
+    background-color: var(--el-fill-color-blank);
+    border-color: var(--el-border-color);
+  }
+  
+  .el-input__inner {
+    background-color: transparent;
+    color: var(--el-text-color-regular);
+  }
+  
+  .el-input__inner::placeholder {
+    color: var(--el-text-color-placeholder);
+  }
+  
+  /* 下拉菜单 */
+  .el-select-dropdown {
+    background-color: var(--el-bg-color-overlay);
+    border-color: var(--el-border-color-light);
+  }
+  
+  .el-select-dropdown__item {
+    color: var(--el-text-color-regular);
+  }
+  
+  .el-select-dropdown__item.hover,
+  .el-select-dropdown__item:hover {
+    background-color: var(--el-fill-color-light);
+  }
+  
+  .el-select-dropdown__item.selected {
+    color: #409eff;
+  }
+  
+  /* 标签页 */
+  .el-tabs__item {
+    color: var(--el-text-color-secondary);
+  }
+  
+  .el-tabs__item.is-active {
+    color: #409eff;
+  }
+  
+  .el-tabs__nav-wrap::after {
+    background-color: var(--el-border-color-light);
+  }
+  
+  .el-tabs__active-bar {
+    background-color: #409eff;
+  }
+  
+  /* 复选框 */
+  .el-checkbox__input.is-checked .el-checkbox__inner {
+    background-color: #409eff;
+    border-color: #409eff;
+  }
+  
+  .el-checkbox__inner {
+    background-color: var(--el-fill-color-blank);
+    border-color: var(--el-border-color);
+  }
+  
+  .el-checkbox__inner::after {
+    border-color: white;
+  }
+  
+  .el-checkbox__label {
+    color: var(--el-text-color-regular);
+  }
+  
+  /* 单选框 */
+  .el-radio__input.is-checked .el-radio__inner {
+    background-color: #409eff;
+    border-color: #409eff;
+  }
+  
+  .el-radio__inner {
+    background-color: var(--el-fill-color-blank);
+    border-color: var(--el-border-color);
+  }
+  
+  .el-radio__inner::after {
+    background-color: white;
+  }
+  
+  .el-radio__label {
+    color: var(--el-text-color-regular);
+  }
+  
+  /* 工具提示 */
+  .el-tooltip__popper.is-dark {
+    background-color: #303133;
+    color: var(--el-text-color-primary);
+  }
+  
+  /* 滚动条 */
+  ::-webkit-scrollbar-track {
+    background: #1d1e1f;
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    background: #4c4d4f;
+  }
+  
+  ::-webkit-scrollbar-thumb:hover {
+    background: #6b6c6e;
+  }
+}
+
+/* 应用深色主题到整个页面 */
+html.dark body {
+  background-color: var(--el-bg-color-page);
+  color: var(--el-text-color-primary);
+}
+
+/* 确保所有组件都能正确应用深色主题 */
+html.dark .el-overlay {
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+/* TimelinePanel.vue 深色主题适配 */
+html.dark .timeline-card {
+  background-color: var(--el-bg-color-overlay) !important;
+  border-color: var(--el-border-color-light) !important;
+}
+
+html.dark .log-content,
+html.dark .note-content {
+  color: var(--el-text-color-primary) !important;
+}
+
+html.dark .timeline-date {
+  color: var(--el-text-color-secondary) !important;
+}
+
+html.dark .timeline-time {
+  color: var(--dark-blue) !important;
+}
+
+html.dark .timeline-type {
+  background-color: var(--el-fill-color-light) !important;
+  color: var(--el-text-color-secondary) !important;
+  border-color: var(--el-border-color-lighter) !important;
+}
+
+html.dark .timeline-content {
+  color: var(--el-text-color-primary) !important;
+}
+
+html.dark .timeline-content:hover {
+  background-color: var(--el-fill-color-light) !important;
+}
+
+html.dark .log-entry {
+  color: var(--dark-log-info) !important;
+}
+
+html.dark .note-entry {
+  color: var(--dark-yellow) !important;
+}
+
+html.dark .timeline-footer {
+  border-top-color: var(--el-border-color-light) !important;
+}
+
+html.dark .timeline-stats {
+  color: var(--el-text-color-placeholder) !important;
+}
+
+html.dark .timeline-actions button {
+  background-color: var(--el-fill-color-light) !important;
+  color: var(--el-text-color-primary) !important;
+  border-color: var(--el-border-color-lighter) !important;
+}
+
+html.dark .timeline-actions button:hover {
+  background-color: var(--el-fill-color-lighter) !important;
+}
+
+html.dark .scrollbar::-webkit-scrollbar-track {
+  background: var(--el-bg-color-overlay) !important;
+}
+
+html.dark .scrollbar::-webkit-scrollbar-thumb {
+  background: var(--el-border-color) !important;
+}
+
+html.dark .scrollbar::-webkit-scrollbar-thumb:hover {
+  background: var(--el-border-color-light) !important;
+}
+
+/* ToolBar.vue 深色主题适配 */
+html.dark .toolbar {
+  background-color: var(--el-bg-color-overlay) !important;
+  border-bottom-color: var(--el-border-color-light) !important;
+}
+
+html.dark .main-operations {
+  background-color: var(--el-bg-color-overlay) !important;
+}
+
+html.dark .main-btn {
+  background-color: var(--el-fill-color-light) !important;
+  color: var(--el-text-color-primary) !important;
+  border-color: var(--el-border-color-lighter) !important;
+}
+
+html.dark .main-btn:hover {
+  background-color: var(--el-fill-color-lighter) !important;
+  border-color: var(--dark-blue) !important;
+}
+
+html.dark .main-btn.active {
+  background-color: var(--dark-blue) !important;
+  color: white !important;
+}
+
+html.dark .recent-file-option {
+  background-color: var(--el-bg-color-overlay) !important;
+  border-color: var(--el-border-color-light) !important;
+}
+
+html.dark .recent-file-option:hover {
+  background-color: var(--el-fill-color-light) !important;
+}
+
+html.dark .recent-file-name {
+  color: var(--el-text-color-primary) !important;
+}
+
+html.dark .recent-file-path {
+  color: var(--el-text-color-placeholder) !important;
+}
+
+html.dark .highlight-words-section {
+  background-color: var(--el-bg-color-overlay) !important;
+  border-color: var(--el-border-color-light) !important;
+}
+
+html.dark .highlight-word-tag {
+  background-color: var(--el-fill-color-light) !important;
+  color: var(--el-text-color-primary) !important;
+  border-color: var(--el-border-color-lighter) !important;
+}
+
+html.dark .highlight-word-tag:hover {
+  background-color: var(--el-fill-color-lighter) !important;
+}
+
+html.dark .timeline-section {
+  background-color: var(--el-bg-color-overlay) !important;
+  border-color: var(--el-border-color-light) !important;
+}
+
+html.dark .window-operations {
+  background-color: var(--el-bg-color-overlay) !important;
+}
+
+html.dark .search-input-container {
+  background-color: var(--el-fill-color-light) !important;
+  border-color: var(--el-border-color-lighter) !important;
+}
+
+html.dark .search-input {
+  background-color: var(--el-fill-color-light) !important;
+  color: var(--el-text-color-primary) !important;
+  border-color: var(--el-border-color-lighter) !important;
+}
+
+html.dark .search-input:focus {
+  border-color: var(--dark-blue) !important;
+}
+
+html.dark .search-count-overlay {
+  background-color: var(--el-fill-color-light) !important;
+  color: var(--el-text-color-secondary) !important;
+  border-color: var(--el-border-color-lighter) !important;
+}
+
+html.dark .line-jump-section {
+  background-color: var(--el-bg-color-overlay) !important;
+}
+
+html.dark .filter-section {
+  background-color: var(--el-bg-color-overlay) !important;
+  border-color: var(--el-border-color-light) !important;
+}
+
+html.dark .filter-button-group {
+  background-color: var(--el-fill-color-light) !important;
+  border-color: var(--el-border-color-lighter) !important;
+}
+
+html.dark .filter-button {
+  color: var(--el-text-color-primary) !important;
+}
+
+html.dark .filter-button.active {
+  background-color: var(--dark-blue) !important;
+  color: white !important;
+}
+
+html.dark .message {
+  background-color: var(--el-fill-color-light) !important;
+  color: var(--el-text-color-primary) !important;
+  border-color: var(--el-border-color-lighter) !important;
+}
+
+html.dark .add-timeline-dialog {
+  background-color: var(--el-bg-color-overlay) !important;
+}
+
+html.dark .add-timeline-form {
+  background-color: var(--el-bg-color-overlay) !important;
+}
+
+html.dark .focused-row-info {
+  background-color: var(--el-fill-color-light) !important;
+  border-color: var(--el-border-color-light) !important;
+}
+
+html.dark .focused-row-content {
+  color: var(--el-text-color-primary) !important;
+}
+
+/* WelcomePage.vue 深色主题适配 */
+html.dark .welcome-page {
+  background: linear-gradient(135deg, var(--el-bg-color-page) 0%, var(--el-bg-color-overlay) 100%) !important;
+}
+
+html.dark .welcome-content {
+  background-color: var(--el-bg-color-overlay) !important;
+}
+
+html.dark .header-section {
+  color: var(--el-text-color-primary) !important;
+}
+
+html.dark .action-card {
+  background-color: var(--el-fill-color-light) !important;
+  border-color: var(--el-border-color-lighter) !important;
+  color: var(--el-text-color-primary) !important;
+}
+
+html.dark .action-card:hover {
+  background-color: var(--el-fill-color-lighter) !important;
+  border-color: var(--dark-blue) !important;
+}
+
+html.dark .feature-item {
+  background-color: var(--el-fill-color-light) !important;
+  border-color: var(--el-border-color-lighter) !important;
+}
+
+html.dark .recent-file-card {
+  background-color: var(--el-fill-color-light) !important;
+  border-color: var(--el-border-color-lighter) !important;
+}
+
+html.dark .recent-file-card:hover {
+  background-color: var(--el-fill-color-lighter) !important;
+  border-color: var(--dark-blue) !important;
+}
+
+html.dark .app-title {
+  color: var(--el-text-color-primary) !important;
+}
+
+html.dark .quick-actions {
+  color: var(--el-text-color-secondary) !important;
+}
+
+html.dark .features-section {
+  color: var(--el-text-color-secondary) !important;
+}
+
+html.dark .recent-section {
+  color: var(--el-text-color-secondary) !important;
+}
+
+/* SideBar.vue 深色主题适配 */
+html.dark .sidebar {
+  background-color: var(--el-bg-color-overlay) !important;
+  border-right-color: var(--el-border-color-light) !important;
+}
+
+html.dark .sidebar-header {
+  border-bottom-color: var(--el-border-color-light) !important;
+}
+
+html.dark .section {
+  border-bottom-color: var(--el-border-color-light) !important;
+}
+
+html.dark .action-item {
+  color: var(--el-text-color-primary) !important;
+}
+
+html.dark .action-item:hover {
+  background-color: var(--el-fill-color-light) !important;
+}
+
+html.dark .action-item.active {
+  background-color: var(--dark-blue) !important;
+  color: white !important;
+}
+
+html.dark .recent-file-item,
+html.dark .open-file-item {
+  color: var(--el-text-color-primary) !important;
+}
+
+html.dark .recent-file-item:hover,
+html.dark .open-file-item:hover {
+  background-color: var(--el-fill-color-light) !important;
+}
+
+html.dark .recent-file-item.active,
+html.dark .open-file-item.active {
+  background-color: var(--dark-blue) !important;
+  color: white !important;
+}
+
+html.dark .sidebar.collapsed {
+  background-color: var(--el-bg-color-overlay) !important;
+}
+
+html.dark .resize-handle {
+  background-color: var(--el-border-color-light) !important;
+}
+
+html.dark .resize-handle:hover {
+  background-color: var(--el-border-color-lighter) !important;
+}
+
+/* AnalysisPage.vue 深色主题适配 */
+html.dark .analysis-page {
+  background-color: var(--el-bg-color-page) !important;
+  color: var(--el-text-color-primary) !important;
+}
+
+html.dark .analysis-header {
+  background-color: var(--el-bg-color-overlay) !important;
+  border-bottom-color: var(--el-border-color-light) !important;
+}
+
+html.dark .analysis-content {
+  background-color: var(--el-bg-color-page) !important;
+}
+
+html.dark .analysis-progress {
+  background-color: var(--el-bg-color-overlay) !important;
+  border-color: var(--el-border-color-light) !important;
+}
+
+html.dark .stat-card {
+  background-color: var(--el-bg-color-overlay) !important;
+  border-color: var(--el-border-color-light) !important;
+}
+
+html.dark .stat-value {
+  color: var(--dark-blue) !important;
+}
+
+html.dark .stat-label {
+  color: var(--el-text-color-placeholder) !important;
+}
+
+html.dark .ip-analysis-section,
+html.dark .url-analysis-section,
+html.dark .user-agent-analysis-section,
+html.dark .status-analysis-section,
+html.dark .method-analysis-section {
+  background-color: var(--el-bg-color-overlay) !important;
+  border-color: var(--el-border-color-light) !important;
+}
+
+html.dark .chart-container {
+  background-color: var(--el-fill-color-light) !important;
+}
+
+html.dark table {
+  border-color: var(--el-border-color-light) !important;
+}
+
+html.dark th {
+  background-color: var(--el-fill-color-light) !important;
+  color: var(--el-text-color-primary) !important;
+  border-color: var(--el-border-color-lighter) !important;
+}
+
+html.dark td {
+  border-color: var(--el-border-color-light) !important;
+  color: var(--el-text-color-primary) !important;
+}
+
+html.dark tr:hover td {
+  background-color: var(--el-fill-color-light) !important;
+}
+
+html.dark h2 {
+  color: var(--el-text-color-primary) !important;
+}
+
+html.dark .ip-search-container {
+  background-color: var(--el-bg-color-overlay) !important;
+  border-color: var(--el-border-color-light) !important;
+}
+
+html.dark .ip-search-input {
+  background-color: var(--el-fill-color-light) !important;
+  color: var(--el-text-color-primary) !important;
+  border-color: var(--el-border-color-lighter) !important;
+}
+
+/* GlobalLoading.vue 深色主题适配 */
+html.dark .global-loading-overlay {
+  background-color: rgba(20, 20, 20, 0.8) !important;
+}
+
+html.dark .loading-container {
+  background-color: var(--el-bg-color-overlay) !important;
+  border-color: var(--el-border-color-light) !important;
+}
+
+html.dark .loading-text {
+  color: var(--el-text-color-primary) !important;
+}
+
+html.dark .progress-bar {
+  background-color: var(--el-fill-color-light) !important;
+  border-color: var(--el-border-color-lighter) !important;
+}
+
+html.dark .progress-fill {
+  background-color: var(--dark-blue) !important;
+}
+
+/* FlowchartPreview.vue 深色主题适配 */
+html.dark .flowchart-preview-dialog {
+  background-color: var(--el-bg-color-overlay) !important;
+}
+
+html.dark .preview-toolbar {
+  background-color: var(--el-fill-color-light) !important;
+  border-bottom-color: var(--el-border-color-light) !important;
+}
+
+html.dark .preview-content {
+  background-color: var(--el-bg-color-page) !important;
+}
+
+html.dark .code-panel {
+  background-color: var(--el-bg-color-overlay) !important;
+  border-color: var(--el-border-color-light) !important;
+}
+
+html.dark .table-panel {
+  background-color: var(--el-bg-color-overlay) !important;
+  border-color: var(--el-border-color-light) !important;
+}
+
+html.dark .statistics {
+  background-color: var(--el-bg-color-overlay) !important;
+  border-color: var(--el-border-color-light) !important;
+}
+
+html.dark .stats-grid {
+  background-color: var(--el-fill-color-light) !important;
+}
+
+html.dark .stats-item {
+  color: var(--el-text-color-primary) !important;
+}
+
+html.dark .stats-value {
+  color: var(--dark-blue) !important;
+}
+
+html.dark .stats-label {
+  color: var(--el-text-color-placeholder) !important;
+}
+
+html.dark .log-text {
+  color: var(--el-text-color-primary) !important;
+}
+
+html.dark .log-text.info {
+  color: var(--dark-log-info) !important;
+}
+
+html.dark .log-text.debug {
+  color: var(--dark-log-debug) !important;
+}
+
+html.dark .log-text.warn {
+  color: var(--dark-log-warn) !important;
+}
+
+html.dark .log-text.error {
+  color: var(--dark-log-error) !important;
+}
+
+html.dark .log-text.system {
+  color: var(--dark-log-system) !important;
+}
+
+html.dark .mermaid-render-container {
+  background-color: var(--el-fill-color-light) !important;
+  border-color: var(--el-border-color-lighter) !important;
+}
+
+html.dark .render-controls {
+  background-color: var(--el-bg-color-overlay) !important;
+  border-color: var(--el-border-color-light) !important;
+}
+
+/* FileSplitterDialog.vue 深色主题适配 */
+html.dark .splitter-dialog-wrapper {
+  background-color: var(--el-bg-color-overlay) !important;
+}
+
+html.dark .splitter-dialog-wrapper .el-dialog__header {
+  border-bottom-color: var(--el-border-color-light) !important;
+}
+
+html.dark .splitter-dialog-wrapper .el-dialog__footer {
+  border-top-color: var(--el-border-color-light) !important;
+  background-color: var(--el-fill-color-light) !important;
+}
+
+html.dark .dialog-header {
+  background: linear-gradient(135deg, #d46b08 0%, #e87b1d 100%) !important;
+}
+
+html.dark .file-info-card,
+html.dark .strategy-card,
+html.dark .config-card,
+html.dark .output-card,
+html.dark .estimate-card {
+  background-color: var(--el-bg-color-overlay) !important;
+  border-color: var(--el-border-color-light) !important;
+}
+
+html.dark .file-info-card:hover,
+html.dark .strategy-card:hover,
+html.dark .config-card:hover,
+html.dark .output-card:hover,
+html.dark .estimate-card:hover {
+  border-color: #d46b08 !important;
+  box-shadow: 0 4px 12px rgba(212, 107, 8, 0.2) !important;
+}
+
+html.dark .card-header {
+  background-color: var(--el-fill-color-light) !important;
+  border-bottom-color: var(--el-border-color-light) !important;
+}
+
+html.dark .card-title {
+  color: var(--el-text-color-primary) !important;
+}
+
+html.dark .detail-label {
+  color: var(--el-text-color-placeholder) !important;
+}
+
+html.dark .detail-value {
+  color: var(--el-text-color-primary) !important;
+}
+
+html.dark .size-highlight {
+  color: #d46b08 !important;
+}
+
+html.dark .lines-highlight {
+  color: #389e0d !important;
+}
+
+html.dark .date-highlight {
+  color: #1890ff !important;
+}
+
+html.dark .duration-highlight {
+  color: #722ed1 !important;
+}
+
+html.dark .date-range-section {
+  border-top-color: var(--el-border-color-light) !important;
+}
+
+html.dark .path-value {
+  background-color: var(--el-fill-color-light) !important;
+  color: var(--el-text-color-primary) !important;
+}
+
+html.dark .strategy-option {
+  border-color: var(--el-border-color-light) !important;
+  background-color: var(--el-bg-color-overlay) !important;
+}
+
+html.dark .strategy-option:hover {
+  border-color: #d46b08 !important;
+  background-color: var(--el-fill-color-light) !important;
+}
+
+html.dark .strategy-option.active {
+  border-color: #d46b08 !important;
+  background-color: var(--el-fill-color-light) !important;
+  box-shadow: 0 2px 8px rgba(212, 107, 8, 0.2) !important;
+}
+
+html.dark .strategy-name {
+  color: var(--el-text-color-primary) !important;
+}
+
+html.dark .strategy-desc {
+  color: var(--el-text-color-placeholder) !important;
+}
+
+html.dark .config-label {
+  color: var(--el-text-color-primary) !important;
+}
+
+html.dark .pattern-name {
+  color: var(--el-text-color-primary) !important;
+}
+
+html.dark .pattern-desc {
+  color: var(--el-text-color-placeholder) !important;
+}
+
+html.dark .pattern-example {
+  color: var(--el-text-color-secondary) !important;
+}
+
+html.dark .estimate-item {
+  background-color: var(--el-fill-color-light) !important;
+  border-color: var(--el-border-color-lighter) !important;
+}
+
+html.dark .estimate-label {
+  color: var(--el-text-color-placeholder) !important;
+}
+
+html.dark .estimate-value {
+  color: var(--el-text-color-primary) !important;
+}
+
+html.dark .split-btn {
+  background: linear-gradient(135deg, #d46b08 0%, #e87b1d 100%) !important;
+}
+
+html.dark .split-btn:hover {
+  background: linear-gradient(135deg, #d46b08 0%, #e87b1d 100%) !important;
+}
+
+/* SettingsDialog.vue 深色主题适配 */
+html.dark .setting-item {
+  background-color: var(--el-fill-color-light) !important;
+}
+
+html.dark .setting-item:hover {
+  background-color: var(--el-fill-color-lighter) !important;
+}
+
+html.dark .setting-label {
+  color: var(--el-text-color-primary) !important;
+}
+
+html.dark .shortcuts-category {
+  background-color: var(--el-fill-color-light) !important;
+}
+
+html.dark .shortcut-desc {
+  color: var(--el-text-color-primary) !important;
+}
+
+html.dark .step {
+  color: var(--el-text-color-placeholder) !important;
+}
+
+html.dark .shortcut-key {
+  background-color: var(--el-bg-color-overlay) !important;
+  border-color: var(--el-border-color-light) !important;
+  color: var(--el-text-color-primary) !important;
+}
+
+html.dark .shortcuts-tips {
+  background-color: #2b2111 !important;
+  border-color: #8f5e15 !important;
+}
+
+html.dark .tips-list li {
+  color: var(--el-text-color-secondary) !important;
+}
+
+html.dark .tips-list li::before {
+  color: #d46b08 !important;
+}
+
+html.dark .about-header {
+  background: linear-gradient(135deg, var(--el-fill-color-light) 0%, #3c4452 100%) !important;
+}
+
+html.dark .app-name {
+  color: var(--el-text-color-primary) !important;
+}
+
+html.dark .app-version {
+  color: var(--dark-blue) !important;
+}
+
+html.dark .app-description {
+  color: var(--el-text-color-secondary) !important;
+}
+
+html.dark .author-info,
+html.dark .features-info {
+  background-color: var(--el-fill-color-light) !important;
+}
+
+html.dark .info-label {
+  color: var(--el-text-color-primary) !important;
+}
+
+html.dark .info-value {
+  color: var(--el-text-color-secondary) !important;
+}
+
+html.dark .info-link {
+  color: var(--dark-blue) !important;
+}
+
+html.dark .feature-item {
+  background-color: var(--el-bg-color-overlay) !important;
+}
+
+html.dark .feature-text {
+  color: var(--el-text-color-secondary) !important;
+}
+
+/* LogViewer.vue 深色主题适配 */
+html.dark .log-viewer {
+  background-color: var(--el-bg-color-page) !important;
+}
+
+html.dark .file-tabs {
+  background-color: var(--el-fill-color-light) !important;
+  border-bottom-color: var(--el-border-color-light) !important;
+}
+
+html.dark .file-tab {
+  border-right-color: var(--el-border-color-light) !important;
+  color: var(--el-text-color-primary) !important;
+}
+
+html.dark .file-tab:hover {
+  background-color: var(--el-fill-color-lighter) !important;
+}
+
+html.dark .file-tab.active {
+  background-color: var(--el-bg-color-page) !important;
+  border-bottom-color: var(--dark-blue) !important;
+}
+
+html.dark .tab-name {
+  color: var(--el-text-color-primary) !important;
+}
+
+html.dark .status-bar {
+  background-color: var(--el-fill-color-light) !important;
+  border-bottom-color: var(--el-border-color-light) !important;
+}
+
+html.dark .file-info {
+  color: var(--el-text-color-primary) !important;
+}
+
+html.dark .file-size {
+  color: var(--el-text-color-placeholder) !important;
+}
+
+html.dark .log-display {
+  background-color: var(--el-bg-color-page) !important;
+}
+
+html.dark .line-numbers {
+  background-color: #2c5a96 !important;
+  border-right-color: #254a7a !important;
+  color: var(--el-text-color-primary) !important;
+}
+
+html.dark .line-numbers.focused {
+  background-color: #1a75d2 !important;
+  border-right-color: #155ba1 !important;
+}
+
+html.dark .line-numbers.selected:not(.focused) {
+  background-color: #7a7a7a !important;
+  border-right-color: #5a5a5a !important;
+}
+
+html.dark .line-number-container.highlighted {
+  background-color: #254a7a !important;
+}
+
+html.dark .log-content-lines {
+  background-color: var(--el-bg-color-page) !important;
+  color: var(--el-text-color-primary) !important;
+}
+
+html.dark .log-line:hover {
+  background-color: var(--el-fill-color-light) !important;
+}
+
+html.dark .log-line.highlighted {
+  background-color: #2c3e50 !important;
+  border-left-color: var(--dark-blue) !important;
+}
+
+html.dark .system-info {
+  color: var(--dark-green) !important;
+  background-color: #1a2c24 !important;
+  border-color: #2a4d3e !important;
+}
+
+html.dark .system-info-debug {
+  color: var(--dark-yellow) !important;
+  background-color: #322a1d !important;
+  border-color: #5c4d2a !important;
+}
+
+html.dark .scroll-info {
+  background-color: var(--el-fill-color-light) !important;
+  border-left-color: var(--el-border-color-light) !important;
+}
+
+html.dark .scroll-thumb {
+  background-color: #5a6e8a !important;
+  border-color: #4a5a70 !important;
+}
+
+html.dark .scroll-thumb:hover {
+  background-color: #5a6e8a !important;
+}
+
+html.dark .scroll-thumb:active {
+  background-color: #4a5a70 !important;
+}
+
+html.dark :deep(.syntax-timestamp) {
+  color: #b060e0 !important;
+}
+
+html.dark :deep(.syntax-ip) {
+  color: var(--dark-green) !important;
+}
+
+html.dark :deep(.syntax-method) {
+  color: var(--dark-red) !important;
+}
+
+html.dark :deep(.syntax-status) {
+  color: var(--dark-orange) !important;
+}
+
+html.dark :deep(.search-highlight) {
+  background-color: #6b5e00 !important;
+  color: #fffbe6 !important;
+}
+
+html.dark :deep(.search-highlight-current) {
+  background-color: #d46b08 !important;
+  color: white !important;
+  box-shadow: 0 0 0 1px #a35205 !important;
+}
+
+html.dark .filter-windows {
+  border-top-color: var(--el-border-color-light) !important;
+  background-color: var(--el-bg-color-page) !important;
+}
+
+html.dark .filter-splitter {
+  background-color: var(--el-fill-color-light) !important;
+  border-bottom-color: var(--el-border-color-light) !important;
+}
+
+html.dark .filter-splitter:hover {
+  background-color: var(--el-fill-color-lighter) !important;
+}
+
+html.dark .filter-splitter-line {
+  background-color: #5a6e8a !important;
+}
+
+html.dark .filter-splitter-line::before,
+html.dark .filter-splitter-line::after {
+  border-bottom-color: #5a6e8a !important;
+  border-top-color: #5a6e8a !important;
+}
+
+html.dark .filter-splitter:hover .filter-splitter-line {
+  background-color: #7a8ea7 !important;
+}
+
+html.dark .filter-splitter:hover .filter-splitter-line::before,
+html.dark .filter-splitter:hover .filter-splitter-line::after {
+  border-bottom-color: #7a8ea7 !important;
+  border-top-color: #7a8ea7 !important;
+}
+
+html.dark .filter-window-header {
+  background-color: var(--el-fill-color-light) !important;
+  border-bottom-color: var(--el-border-color-light) !important;
+}
+
+html.dark .filter-window-tab {
+  background-color: var(--el-bg-color-overlay) !important;
+  border-right-color: var(--el-border-color-light) !important;
+  color: var(--el-text-color-primary) !important;
+}
+
+html.dark .filter-window-tab:hover {
+  background-color: var(--el-fill-color-light) !important;
+}
+
+html.dark .filter-window-tab.active {
+  background-color: var(--el-bg-color-page) !important;
+}
+
+html.dark .filter-tab-name {
+  color: var(--el-text-color-primary) !important;
+}
+
+html.dark .filter-tab-count {
+  color: var(--el-text-color-placeholder) !important;
+}
+
+html.dark .filter-window-controls {
+  color: var(--el-text-color-placeholder) !important;
+}
+
+html.dark .filter-log-display {
+  background-color: var(--el-bg-color-page) !important;
+}
+
+html.dark :deep(.filter-highlight) {
+  background-color: #6b5e00 !important;
+  color: #fffbe6 !important;
+}
+
+/* 高亮词背景区域深色主题适配 */
+html.dark :deep(.highlight-word-0) {
+  background-color: #2d4a73 !important;
+  color: #e0f0ff !important;
+}
+
+html.dark :deep(.highlight-word-1) {
+  background-color: #2e5d48 !important;
+  color: #e0fff0 !important;
+}
+
+html.dark :deep(.highlight-word-2) {
+  background-color: #5d4a2e !important;
+  color: #fff0e0 !important;
+}
+
+html.dark :deep(.highlight-word-3) {
+  background-color: #5d2e3a !important;
+  color: #ffe0f0 !important;
+}
+
+html.dark :deep(.highlight-word-4) {
+  background-color: #4a3a5d !important;
+  color: #f0e0ff !important;
+}
+
+html.dark .context-menu {
+  background-color: var(--el-bg-color-overlay) !important;
+  border-color: var(--el-border-color-light) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+}
+
+html.dark .context-menu-item {
+  color: var(--el-text-color-primary) !important;
+}
+
+html.dark .context-menu-item:hover {
+  background-color: var(--el-fill-color-light) !important;
+}
+
+html.dark .context-menu-item .el-icon {
+  color: var(--el-text-color-secondary) !important;
+}
+
+html.dark .context-menu-item span {
+  color: var(--el-text-color-primary) !important;
+}
+
+html.dark .context-menu-item .shortcut {
+  color: var(--el-text-color-placeholder) !important;
+  background: var(--el-fill-color-light) !important;
+}
+
+html.dark .context-menu-divider {
+  background-color: var(--el-border-color-light) !important;
+}
+
+/* MainLayout.vue 深色主题适配 */
+html.dark .main-layout {
+  background-color: var(--el-bg-color-page) !important;
+}
+
+html.dark .main-content {
+  background-color: var(--el-bg-color-page) !important;
+}
+
+html.dark .content-area {
+  background-color: var(--el-bg-color-page) !important;
+}
+
+html.dark .drag-overlay {
+  background-color: rgba(25, 55, 109, 0.2) !important;
+  border-color: var(--dark-blue) !important;
+}
+
+html.dark .drag-message {
+  background-color: var(--el-bg-color-overlay) !important;
+  border-color: var(--dark-blue) !important;
+}
+
+html.dark .drag-text {
+  color: var(--el-text-color-primary) !important;
+}
+
+html.dark .drag-hint {
+  color: var(--el-text-color-placeholder) !important;
+}
+
+/* Windows应用顶部关闭、操作栏深色主题适配 */
+html.dark .window-controls {
+  background-color: var(--el-bg-color-overlay) !important;
+}
+
+html.dark .window-control-button {
+  background-color: var(--el-fill-color-light) !important;
+  color: var(--el-text-color-primary) !important;
+  border: 1px solid var(--el-border-color-light) !important;
+}
+
+html.dark .window-control-button:hover {
+  background-color: var(--el-fill-color-lighter) !important;
+}
+
+html.dark .window-control-button.close:hover {
+  background-color: #e81123 !important;
+  color: white !important;
+}
+
+html.dark .title-bar {
+  background-color: var(--el-bg-color-overlay) !important;
+  color: var(--el-text-color-primary) !important;
+  border-bottom: 1px solid var(--el-border-color-light) !important;
+}
+
+/* ToolBar.vue 高亮词按钮深色主题适配 */
+html.dark .add-highlight-btn {
+  border-color: var(--el-border-color-light) !important;
+  background-color: var(--el-bg-color-overlay) !important;
+  color: var(--el-text-color-placeholder) !important;
+}
+
+html.dark .add-highlight-btn:hover {
+  border-color: var(--el-color-primary) !important;
+  color: var(--el-color-primary) !important;
+}
+
+html.dark .highlight-words-list {
+  border-color: var(--el-border-color-light) !important;
+  background-color: var(--el-bg-color-overlay) !important;
+}
+
+html.dark .highlight-words-list:hover {
+  border-color: var(--el-color-primary) !important;
+}
+
+/* TimelinePanel.vue 日志内容深色主题适配 */
+html.dark .log-content {
+  color: var(--el-text-color-primary) !important;
+  background-color: var(--el-fill-color-light) !important;
+  border-color: var(--el-border-color-light) !important;
+}
+
+/* TimelinePanel.vue 时间线面板深色主题适配 */
+html.dark .timeline-sidebar {
+  background: linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%) !important;
+  box-shadow: -2px 0 8px rgba(0, 0, 0, 0.3) !important;
+}
+
+html.dark .timeline-sidebar:hover {
+  background: linear-gradient(135deg, #4a57c8 0%, #5b36b1 100%) !important;
+}
+
+html.dark .sidebar-content {
+  color: var(--el-text-color-primary) !important;
+}
+
+html.dark .sidebar-count {
+  background: rgba(255, 255, 255, 0.1) !important;
+}
+
+html.dark .timeline-panel {
+  background: var(--el-bg-color-overlay) !important;
+  border-left-color: var(--el-border-color-light) !important;
+  box-shadow: -4px 0 20px rgba(0, 0, 0, 0.3) !important;
+}
+
+html.dark .timeline-header {
+  background: linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3) !important;
+}
+
+html.dark .sort-btn,
+html.dark .export-btn,
+html.dark .close-btn {
+  color: var(--el-text-color-primary) !important;
+}
+
+html.dark .sort-btn:hover,
+html.dark .export-btn:hover,
+html.dark .close-btn:hover {
+  background: rgba(255, 255, 255, 0.1) !important;
+}
+
+html.dark .timeline-content {
+  background: var(--el-bg-color-overlay) !important;
+}
+
+html.dark .empty-timeline {
+  color: var(--el-text-color-placeholder) !important;
+}
+
+html.dark .empty-icon {
+  color: var(--el-fill-color-lighter) !important;
+}
+
+html.dark .empty-timeline p {
+  color: var(--el-text-color-placeholder) !important;
+}
+
+html.dark .empty-tip {
+  color: var(--el-text-color-placeholder) !important;
+}
+
+html.dark .timeline-dot {
+  background: #3b82f6 !important;
+  border-color: var(--el-bg-color-overlay) !important;
+  box-shadow: 0 0 0 2px var(--el-border-color-light) !important;
+}
+
+html.dark .timeline-line {
+  background: var(--el-border-color-light) !important;
+}
+
+html.dark .timeline-card {
+  background: var(--el-bg-color-page) !important;
+  border-color: var(--el-border-color-light) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15) !important;
+}
+
+html.dark .timeline-card:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25) !important;
+}
+
+html.dark .timeline-formatted-time {
+  color: var(--el-text-color-primary) !important;
+}
+
+html.dark .note-content {
+  color: #4ec9b0 !important;
+  background: rgba(78, 201, 176, 0.1) !important;
+  border-left-color: #4ec9b0 !important;
+  border-color: rgba(78, 201, 176, 0.3) !important;
+}
+
+html.dark .note-content:hover {
+  background: rgba(78, 201, 176, 0.2) !important;
+  border-color: rgba(78, 201, 176, 0.5) !important;
+}
+
+html.dark .note-placeholder {
+  color: var(--el-text-color-placeholder) !important;
+  background: var(--el-fill-color-light) !important;
+  border-color: var(--el-border-color-light) !important;
+}
+
+html.dark .note-placeholder:hover {
+  background: var(--el-fill-color-lighter) !important;
+  border-color: var(--el-text-color-placeholder) !important;
+  color: var(--el-text-color-secondary) !important;
+}
+
+html.dark .log-time-content {
+  color: #4ec9b0 !important;
+  background: rgba(78, 201, 176, 0.1) !important;
+  border-color: rgba(78, 201, 176, 0.3) !important;
+}
+
+html.dark .timeline-log-preview {
+  background: rgba(255, 255, 200, 0.1) !important;
+  border-left-color: #d7ba7d !important;
+  border-color: rgba(215, 186, 125, 0.3) !important;
+}
+
+html.dark .log-preview-header {
+  color: #d7ba7d !important;
+}
+
+html.dark .log-preview-content {
+  color: var(--el-text-color-primary) !important;
+  background: var(--el-bg-color-page) !important;
+  border-color: var(--el-border-color-light) !important;
+}
+
+/* TimelinePanel.vue 时间线内容区域深色主题适配 */
+html.dark .timeline-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+html.dark .timeline-content::-webkit-scrollbar-track {
+  background: var(--el-fill-color-light) !important;
+}
+
+html.dark .timeline-content::-webkit-scrollbar-thumb {
+  background: var(--el-fill-color-lighter) !important;
+  border-radius: 3px;
+}
+
+html.dark .timeline-content::-webkit-scrollbar-thumb:hover {
+  background: var(--el-fill-color-extra-light) !important;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    border-color: var(--dark-blue);
+    background-color: rgba(25, 55, 109, 0.2);
+  }
+  50% {
+    border-color: #1a5bc1;
+    background-color: rgba(25, 55, 109, 0.3);
+  }
+}

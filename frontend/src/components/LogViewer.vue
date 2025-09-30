@@ -1639,6 +1639,19 @@ onMounted(() => {
     // 监听窗口选择变化事件
     window.addEventListener('windowChanged', handleWindowChanged)
 
+    // 监听执行搜索的事件
+    const handlePerformSearch = (event: any) => {
+      const { results, targetWindow } = event.detail
+      console.log('🔍 LogViewer: 收到搜索结果:', {
+        resultsCount: results.length,
+        targetWindow
+      })
+      
+      // 这里可以添加对搜索结果的额外处理逻辑
+      // 例如：高亮显示、统计信息等
+    }
+    window.addEventListener('performSearch', handlePerformSearch)
+
     // 启动系统信息监控
     startSystemInfoMonitoring()
 
@@ -1673,6 +1686,9 @@ onUnmounted(() => {
   window.removeEventListener('restoreFilterWindows', handleRestoreFilterWindows)
   window.removeEventListener('highlightWordsUpdated', handleHighlightWordsUpdated)
   window.removeEventListener('windowChanged', handleWindowChanged)
+  
+  // 清理搜索事件监听器
+  // window.removeEventListener('performSearch', handlePerformSearch)
 
   // 停止系统信息监控
   stopSystemInfoMonitoring()
@@ -1730,11 +1746,10 @@ const handleApplyFilter = async (event: any) => {
         } catch (error) {
           console.error('❌ 加载全部数据失败:', error)
           appStore.setGlobalLoading(false)
-          ElMessage.error('加载全部数据失败，将使用已加载的数据进行过滤')
+          ElMessage.error('加载全部数据失败，无法进行完整过滤')
 
-          // 降级到已加载数据
-          sourceLines = logLines.value
-          sourceDescription = `主窗口(已加载 ${loadedLines}/${totalLinesCount} 行)`
+          // 抛出错误，中断过滤操作
+          throw new Error('加载全部数据失败，过滤操作已中断')
         }
       }
     }
@@ -1770,9 +1785,19 @@ const handleApplyFilter = async (event: any) => {
     activeFilterWindow.value = filterId
 
     // 显示过滤结果统计
-    const sourceLineCount = Array.isArray(sourceLines) ?
-      (sourceLines as any[]).filter((line: any) => line !== undefined).length :
-      (sourceLines as any[]).length
+    // 修复源行数计算问题
+    let sourceLineCount = 0;
+    if (Array.isArray(sourceLines)) {
+      if (isLargeFile.value) {
+        // 对于大文件，使用totalLines.value
+        sourceLineCount = totalLines.value;
+      } else {
+        // 对于普通文件，计算非undefined行数
+        sourceLineCount = (sourceLines as any[]).filter((line: any) => line !== undefined).length;
+      }
+    } else {
+      sourceLineCount = (sourceLines as any[]).length;
+    }
 
     console.log('📊 过滤完成统计:', {
       sourceLines: sourceLineCount,
@@ -1848,29 +1873,49 @@ const handleRestoreFilterWindows = (event: any) => {
   activeFilterWindow.value = ''
 
   // 等待DOM更新
-  nextTick(() => {
+  nextTick(async () => {
     // 重新执行过滤逻辑以生成filteredLines和originalLineNumbers
-    const restoredWindows = windows.map((window: any) => {
+    const restoredWindows = []
+    for (const window of windows) {
       console.log('🔍 重新执行过滤:', window.name, 'for', logLines.value.length, 'lines')
 
-      if (logLines.value.length === 0) {
+      if (logLines.value.length === 0 && !isLargeFile.value) {
         console.warn('⚠️ 日志内容为空，跳过过滤')
-        return {
+        restoredWindows.push({
           ...window,
           filteredLines: [],
           originalLineNumbers: []
+        })
+        continue
+      }
+
+      try {
+        let filterResult;
+        if (isLargeFile.value && appStore.currentFile) {
+          // 对于大文件，加载全部数据进行过滤
+          const allLines = await loadAllDataForFilter(appStore.currentFile.path)
+          filterResult = filterLogLines(allLines, window.filter, window.mode, window.options)
+        } else {
+          // 对于普通文件，直接过滤
+          filterResult = filterLogLines(logLines.value, window.filter, window.mode, window.options)
         }
+        
+        console.log('🔍 过滤结果:', window.name, '找到', filterResult.filteredLines.length, '条记录')
+        restoredWindows.push({
+          ...window,
+          filteredLines: filterResult.filteredLines,
+          originalLineNumbers: filterResult.originalLineNumbers
+        })
+      } catch (error) {
+        console.error('❌ 恢复过滤窗口时过滤失败:', error)
+        // 如果过滤失败，使用空结果
+        restoredWindows.push({
+          ...window,
+          filteredLines: [],
+          originalLineNumbers: []
+        })
       }
-
-      const filterResult = filterLogLines(logLines.value, window.filter, window.mode, window.options)
-      console.log('🔍 过滤结果:', window.name, '找到', filterResult.filteredLines.length, '条记录')
-
-      return {
-        ...window,
-        filteredLines: filterResult.filteredLines,
-        originalLineNumbers: filterResult.originalLineNumbers
-      }
-    })
+    }
 
     filterWindows.value = restoredWindows
     activeFilterWindow.value = activeWindow
@@ -1929,9 +1974,11 @@ const filterLogLines = (lines: (string | undefined)[], filter: string, mode: str
     const filteredLines: string[] = []
     const originalLineNumbers: number[] = []
 
-    lines.forEach((line, index) => {
+    // 使用for循环而不是forEach以更好地处理稀疏数组
+    for (let index = 0; index < lines.length; index++) {
+      const line = lines[index];
       // 跳过未加载的行（大文件模式）
-      if (line === undefined) return
+      if (line === undefined) continue
 
       const matches = evaluateFilterExpression(line, filter, options)
       const shouldInclude = mode === 'include' ? matches : !matches
@@ -1939,7 +1986,7 @@ const filterLogLines = (lines: (string | undefined)[], filter: string, mode: str
         filteredLines.push(line)
         originalLineNumbers.push(index)
       }
-    })
+    }
 
     return { filteredLines, originalLineNumbers }
   } catch (error) {
@@ -1970,24 +2017,26 @@ const filterLogLinesWithProgress = async (lines: (string | undefined)[], filter:
     const filteredLines: string[] = []
     const originalLineNumbers: number[] = []
     const batchSize = 10000 // 每批处理1万行
-    const totalLines = lines.length
+    // 对于大文件，使用totalLines.value而不是lines.length
+    const totalLineCount = isLargeFile.value ? totalLines.value : lines.length
 
-    console.log(`🔍 开始分批过滤，总行数: ${totalLines.toLocaleString()}，批大小: ${batchSize.toLocaleString()}`)
+    console.log(`🔍 开始分批过滤，总行数: ${totalLineCount.toLocaleString()}，批大小: ${batchSize.toLocaleString()}`)
 
-    for (let i = 0; i < totalLines; i += batchSize) {
+    for (let i = 0; i < totalLineCount; i += batchSize) {
       // 暂时移除取消检查，让过滤正常执行
       // TODO: 后续可以添加更好的取消机制
 
-      const endIndex = Math.min(i + batchSize, totalLines)
-      const batch = lines.slice(i, endIndex)
+      const endIndex = Math.min(i + batchSize, totalLineCount)
 
-      // 处理当前批次
-      batch.forEach((line, batchIndex) => {
+      // 处理当前批次，直接遍历而不是使用slice（避免稀疏数组问题）
+      for (let batchIndex = 0; batchIndex < batchSize && i + batchIndex < totalLineCount; batchIndex++) {
         try {
-          // 跳过未加载的行（大文件模式）
-          if (line === undefined) return
-
           const actualIndex = i + batchIndex
+          const line = lines[actualIndex]
+          
+          // 跳过未加载的行（大文件模式）
+          if (line === undefined) continue
+
           const matches = evaluateFilterExpression(line, filter, options)
           const shouldInclude = mode === 'include' ? matches : !matches
           if (shouldInclude) {
@@ -1998,12 +2047,12 @@ const filterLogLinesWithProgress = async (lines: (string | undefined)[], filter:
           // 单行处理错误不应该中断整个过滤过程
           console.warn(`处理第 ${i + batchIndex + 1} 行时出错:`, lineError)
         }
-      })
+      }
 
       // 更新进度
-      const progress = 70 + (endIndex / totalLines) * 20 // 70-90%
+      const progress = 70 + (endIndex / totalLineCount) * 20 // 70-90%
       const processedLines = endIndex.toLocaleString()
-      const totalLinesStr = totalLines.toLocaleString()
+      const totalLinesStr = totalLineCount.toLocaleString()
       const foundLines = filteredLines.length.toLocaleString()
 
       appStore.updateLoadingProgress(
@@ -2414,7 +2463,8 @@ const loadAllDataForFilter = async (filePath: string): Promise<string[]> => {
 
       try {
         // 使用分块读取API
-        const chunk = await ReadLogFileChunk(filePath, currentLine, chunkSize)
+        const endLine = Math.min(currentLine + chunkSize, totalLines.value)
+        const chunk = await ReadLogFileChunk(filePath, currentLine, endLine)
 
         if (chunk && chunk.lines && chunk.lines.length > 0) {
           // 过滤掉undefined的行
@@ -2439,13 +2489,8 @@ const loadAllDataForFilter = async (filePath: string): Promise<string[]> => {
         }
       } catch (chunkError) {
         console.warn(`⚠️ 加载数据块失败 (${currentLine}-${currentLine + chunkSize}):`, chunkError)
-        // 如果某个块加载失败，尝试继续加载下一个块
-        currentLine += chunkSize
-
-        // 如果连续失败多次，则停止加载
-        if (currentLine > totalLines.value) {
-          hasMoreData = false
-        }
+        // 如果某个块加载失败，停止加载并抛出错误
+        throw new Error(`加载数据块失败 (${currentLine}-${currentLine + chunkSize}): ${chunkError.message}`)
       }
     }
 

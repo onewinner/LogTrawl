@@ -5,10 +5,42 @@ import { createPinia } from 'pinia'
 import ElementPlus from 'element-plus'
 import 'element-plus/dist/index.css'
 import './styles/element-plus.css'
+import './styles/dark-theme.css'
 import { ElMessage } from 'element-plus'
 
 // 创建应用实例
 const app = createApp(App)
+
+// 应用主题设置
+const savedSettings = localStorage.getItem('logtrawl-settings')
+if (savedSettings) {
+  try {
+    const settings = JSON.parse(savedSettings)
+    if (settings.theme === 'dark') {
+      document.documentElement.classList.add('dark')
+      // 设置窗口主题为深色
+      if (window.runtime) {
+        window.runtime.WindowSetDarkTheme()
+      }
+    } else {
+      // 设置窗口主题为浅色
+      if (window.runtime) {
+        window.runtime.WindowSetLightTheme()
+      }
+    }
+  } catch (e) {
+    console.error('解析保存的主题设置失败:', e)
+    // 默认设置窗口主题为浅色
+    if (window.runtime) {
+      window.runtime.WindowSetLightTheme()
+    }
+  }
+} else {
+  // 默认设置窗口主题为浅色
+  if (window.runtime) {
+    window.runtime.WindowSetLightTheme()
+  }
+}
 
 // 全局错误处理
 app.config.errorHandler = (error, _instance, info) => {

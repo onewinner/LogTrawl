@@ -103,6 +103,16 @@
                     <el-switch v-model="settings.syntaxHighlight" @change="updateSyntaxHighlight" />
                   </div>
                 </div>
+                
+                <div class="setting-item">
+                  <span class="setting-label">应用主题</span>
+                  <div class="setting-control">
+                    <el-select v-model="settings.theme" @change="updateTheme" style="width: 120px">
+                      <el-option label="浅色主题" value="light" />
+                      <el-option label="深色主题" value="dark" />
+                    </el-select>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -297,7 +307,8 @@ const settings = ref({
   lineHeight: 1.5,
   showLineNumbers: true,
   wordWrap: true,
-  syntaxHighlight: true
+  syntaxHighlight: true,
+  theme: 'light' // 添加主题设置，默认为浅色主题
 })
 
 // 初始化设置
@@ -321,6 +332,9 @@ const loadSettings = () => {
   appStore.showLineNumbers = settings.value.showLineNumbers
   appStore.wordWrap = settings.value.wordWrap
   appStore.syntaxHighlight = settings.value.syntaxHighlight
+  
+  // 应用主题
+  applyTheme(settings.value.theme)
 }
 
 // 保存设置
@@ -344,10 +358,34 @@ const applySettings = () => {
   appStore.wordWrap = settings.value.wordWrap
   appStore.syntaxHighlight = settings.value.syntaxHighlight
   
+  // 应用主题
+  applyTheme(settings.value.theme)
+  
   // 触发重新渲染
   window.dispatchEvent(new CustomEvent('settingsChanged', {
     detail: settings.value
   }))
+}
+
+// 应用主题
+const applyTheme = (theme: string) => {
+  const htmlElement = document.documentElement
+  if (theme === 'dark') {
+    htmlElement.classList.add('dark')
+    // 设置窗口主题为深色
+    if (window.runtime) {
+      window.runtime.WindowSetDarkTheme()
+    }
+  } else {
+    htmlElement.classList.remove('dark')
+    // 设置窗口主题为浅色
+    if (window.runtime) {
+      window.runtime.WindowSetLightTheme()
+    }
+  }
+  
+  // 保存主题设置到localStorage
+  localStorage.setItem('logtrawl-theme', theme)
 }
 
 // 字体大小调整
@@ -384,6 +422,17 @@ const updateSyntaxHighlight = () => {
   saveSettings()
 }
 
+// 主题更新
+const updateTheme = () => {
+  saveSettings()
+  ElMessage.success('主题设置已更新')
+  
+  // 调用后端方法设置窗口主题
+  if (window && window.backend && window.backend.App) {
+    window.backend.App.SetWindowTheme(settings.value.theme)
+  }
+}
+
 // 恢复默认设置
 const resetToDefaults = () => {
   settings.value = {
@@ -393,7 +442,8 @@ const resetToDefaults = () => {
     lineHeight: 1.5,
     showLineNumbers: true,
     wordWrap: true,
-    syntaxHighlight: true
+    syntaxHighlight: true,
+    theme: 'light' // 恢复默认主题
   }
   saveSettings()
   ElMessage.success('已恢复默认设置')

@@ -3,6 +3,8 @@ package main
 import (
 	"context"
 
+	"github.com/wailsapp/wails/v2/pkg/runtime"
+
 	"LogTrawl/backend/models"
 	"LogTrawl/backend/services"
 )
@@ -22,6 +24,23 @@ type App struct {
 // NewApp creates a new App application struct
 func NewApp() *App {
 	return &App{}
+}
+
+// SetWindowTheme 设置窗口主题
+func (a *App) SetWindowTheme(theme string) {
+	// 通过Wails运行时API设置窗口主题
+	ctx := a.ctx
+	switch theme {
+	case "dark":
+		// 设置深色主题
+		runtime.WindowSetDarkTheme(ctx)
+	case "light":
+		// 设置浅色主题
+		runtime.WindowSetLightTheme(ctx)
+	default:
+		// 设置系统默认主题
+		runtime.WindowSetSystemDefaultTheme(ctx)
+	}
 }
 
 // startup is called at application startup

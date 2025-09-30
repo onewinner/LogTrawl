@@ -459,6 +459,7 @@
               <div
                 class="highlight-word-tag"
                 :style="{ backgroundColor: word.color, color: getContrastColor(word.color) }"
+                @dblclick="editHighlightWord(index)"
               >
                 {{ word.text }}
                 <el-icon class="remove-icon" @click.stop="removeHighlightWord(index)">
@@ -1978,22 +1979,53 @@ const addHighlightWord = () => {
     return
   }
 
-  // 检查是否已存在
-  const exists = highlightWords.value.some(word => word.text === newHighlightWord.value.text.trim())
-  if (exists) {
-    ElMessage.warning('该单词已存在')
-    return
+  const trimmedText = newHighlightWord.value.text.trim()
+
+  // 检查是否正在编辑现有高亮词
+  if (currentEditingIndex.value >= 0) {
+    // 编辑模式：更新现有高亮词
+    const oldText = highlightWords.value[currentEditingIndex.value].text
+    // 如果文本改变了，检查是否与其他高亮词冲突
+    if (oldText !== trimmedText) {
+      const exists = highlightWords.value.some((word, index) => 
+        index !== currentEditingIndex.value && word.text === trimmedText
+      )
+      if (exists) {
+        ElMessage.warning('该单词已存在')
+        return
+      }
+    }
+
+    // 更新高亮词
+    highlightWords.value[currentEditingIndex.value].text = trimmedText
+    highlightWords.value[currentEditingIndex.value].color = newHighlightWord.value.color
+
+    // 同步到appStore
+    appStore.setHighlightWords([...highlightWords.value])
+
+    // 重置编辑状态
+    currentEditingIndex.value = -1
+    ElMessage.success('高亮词更新成功')
+  } else {
+    // 添加模式：检查是否已存在
+    const exists = highlightWords.value.some(word => word.text === trimmedText)
+    if (exists) {
+      ElMessage.warning('该单词已存在')
+      return
+    }
+
+    const newWord = {
+      text: trimmedText,
+      color: newHighlightWord.value.color
+    }
+
+    highlightWords.value.push(newWord)
+
+    // 同步到appStore
+    appStore.setHighlightWords([...highlightWords.value])
+
+    ElMessage.success('高亮词添加成功')
   }
-
-  const newWord = {
-    text: newHighlightWord.value.text.trim(),
-    color: newHighlightWord.value.color
-  }
-
-  highlightWords.value.push(newWord)
-
-  // 同步到appStore
-  appStore.setHighlightWords([...highlightWords.value])
 
   // 重置表单
   newHighlightWord.value = {
@@ -2002,7 +2034,6 @@ const addHighlightWord = () => {
   }
 
   showAddHighlightDialog.value = false
-  ElMessage.success('高亮词添加成功')
 }
 
 const removeHighlightWord = (index: number) => {
@@ -2010,6 +2041,14 @@ const removeHighlightWord = (index: number) => {
   // 同步到appStore
   appStore.setHighlightWords([...highlightWords.value])
   ElMessage.success('高亮词已删除')
+}
+
+const editHighlightWord = (index: number) => {
+  const word = highlightWords.value[index]
+  currentEditingIndex.value = index
+  newHighlightWord.value.text = word.text
+  newHighlightWord.value.color = word.color
+  showAddHighlightDialog.value = true
 }
 
 const handleHighlightWordCommand = (command: string, index: number) => {
@@ -3303,10 +3342,11 @@ if (import.meta.env.DEV) {
   display: flex;
   flex-wrap: wrap;
   gap: 2px;
-  align-items: center;
+  align-items: flex-start;
   width: 100%;
   height: 100%;
-  overflow: hidden;
+  overflow-y: auto;
+  padding: 2px 0;
 }
 
 .highlight-word-tag {

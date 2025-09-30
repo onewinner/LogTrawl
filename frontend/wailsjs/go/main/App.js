@@ -98,6 +98,10 @@ export function SearchInFileWithRegex(arg1, arg2, arg3) {
   return window['go']['main']['App']['SearchInFileWithRegex'](arg1, arg2, arg3);
 }
 
+export function SetWindowTheme(arg1) {
+  return window['go']['main']['App']['SetWindowTheme'](arg1);
+}
+
 export function SplitFile(arg1) {
   return window['go']['main']['App']['SplitFile'](arg1);
 }

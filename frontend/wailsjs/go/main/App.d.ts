@@ -50,6 +50,8 @@ export function SearchInFile(arg1:string,arg2:string,arg3:boolean):Promise<Array
 
 export function SearchInFileWithRegex(arg1:string,arg2:string,arg3:boolean):Promise<Array<models.SearchResult>>;
 
+export function SetWindowTheme(arg1:string):Promise<void>;
+
 export function SplitFile(arg1:models.FileSplitOptions):Promise<models.FileSplitResult>;
 
 export function StartAnalysis(arg1:string):Promise<void>;
