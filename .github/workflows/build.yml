@@ -21,6 +21,9 @@ jobs:
           - os: macos-latest
             platform: darwin/amd64
             asset_name: LogTrawl-darwin-amd64
+          - os: macos-latest
+            platform: darwin/arm64
+            asset_name: LogTrawl-darwin-arm64
           - os: windows-latest
             platform: windows/amd64
             asset_name: LogTrawl-windows-amd64.exe
@@ -43,6 +46,12 @@ jobs:
         node-version: '18'
         cache: 'npm'
         cache-dependency-path: frontend/package-lock.json
+        
+    - name: Install Linux dependencies
+      if: matrix.os == 'ubuntu-latest'
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.0-dev libayatana-appindicator3-dev
         
     - name: Get Go cache directories
       id: go-cache-paths
@@ -81,7 +90,7 @@ jobs:
       run: |
         wails build -platform ${{ matrix.platform }} -o "dist/${{ matrix.asset_name }}"
         
-    - name: Upload artifacts
+    - name: Upload build artifacts
       uses: actions/upload-artifact@v4
       with:
         name: ${{ matrix.asset_name }}
@@ -93,16 +102,66 @@ jobs:
     runs-on: ubuntu-latest
     if: startsWith(github.ref, 'refs/tags/v')
     
+    permissions:
+      contents: write
+      
     steps:
     - name: Download all artifacts
       uses: actions/download-artifact@v4
       with:
-        path: dist
+        path: artifacts
+        
+    - name: List downloaded artifacts
+      run: find artifacts -type f
         
     - name: Create Release
+      id: create_release
       uses: softprops/action-gh-release@v1
       with:
-        files: |
-          dist/*/*
+        tag_name: ${{ github.ref_name }}
+        release_name: Release ${{ github.ref_name }}
+        draft: false
+        prerelease: false
+        generate_release_notes: true
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        
+    - name: Upload Linux AMD64 binary
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: artifacts/LogTrawl-linux-amd64/LogTrawl-linux-amd64
+        asset_name: LogTrawl-linux-amd64
+        asset_content_type: application/octet-stream
+        
+    - name: Upload Windows AMD64 binary
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: artifacts/LogTrawl-windows-amd64.exe/LogTrawl-windows-amd64.exe
+        asset_name: LogTrawl-windows-amd64.exe
+        asset_content_type: application/octet-stream
+        
+    - name: Upload Darwin AMD64 binary
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: artifacts/LogTrawl-darwin-amd64/LogTrawl-darwin-amd64
+        asset_name: LogTrawl-darwin-amd64
+        asset_content_type: application/octet-stream
+        
+    - name: Upload Darwin ARM64 binary
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: artifacts/LogTrawl-darwin-arm64/LogTrawl-darwin-arm64
+        asset_name: LogTrawl-darwin-arm64
+        asset_content_type: application/octet-stream
