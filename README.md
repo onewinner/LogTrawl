@@ -341,7 +341,7 @@ Dec 25 10:00:01 server01 sshd[1234]: Accepted password for user from 192.168.1.1
 
 ### 🔧 后续开源
 
-1. Star 500+根据情况开源
+1. 已开源
 
 ### 🐛 报告 Bug
 
